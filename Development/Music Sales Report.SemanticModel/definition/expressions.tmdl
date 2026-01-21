@@ -1,0 +1,151 @@
+expression Source =
+		let
+		    Source = Folder.Files(#"Source Name")
+		in
+		    Source
+	lineageTag: cf22302d-cf01-4344-9745-577afeec4a6d
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Source Name' = "D:\Nasif Azam\Music Sales\Datasets\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 3d0f8538-cd5a-49ae-bb2d-9958a3233e3a
+	queryGroup: Parameter
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression Artist =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\_Artist csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="Artist.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_Artist csv",[Delimiter=",", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ArtistId", Int64.Type}, {"Name", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: ca1784d8-9b39-42db-83ce-a1fb83d41511
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Album =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\_Album csv" = Source{[#"Folder Path"=#"Source Name",Name="Album.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_Album csv",[Delimiter=",", Columns=3, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"AlbumId", Int64.Type}, {"Title", type text}, {"ArtistId", Int64.Type}}),
+		    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"ArtistId"}, Artist, {"ArtistId"}, "Artist", JoinKind.LeftOuter),
+		    #"Expanded Artist" = Table.ExpandTableColumn(#"Merged Queries", "Artist", {"Name"}, {"Name"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Expanded Artist",{{"Name", "ArtistName"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: 2796b6aa-8c9f-4eb3-89ae-c69687bacca3
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression MediaType =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\_MediaType csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="MediaType.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_MediaType csv",[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"MediaTypeId", Int64.Type}, {"Name", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: e27b7f36-08d1-48fc-ada7-d64a83a2c96a
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Genre =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\_Genre csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="Genre.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_Genre csv",[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"GenreId", Int64.Type}, {"Name", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 6cb171f2-c4c8-43ef-b03d-90d003b35089
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression InvoiceLine =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\_InvoiceLine csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="InvoiceLine.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_InvoiceLine csv",[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"InvoiceLineId", Int64.Type}, {"InvoiceId", Int64.Type}, {"TrackId", Int64.Type}, {"UnitPrice", type number}, {"Quantity", Int64.Type}})
+		in
+		    #"Changed Type"
+	lineageTag: 492ef479-de4d-4b22-8c68-2ab6214384da
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Playlist =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\_Playlist csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="Playlist.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_Playlist csv",[Delimiter=",", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"PlaylistId", Int64.Type}, {"Name", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 860cc1a6-a3ea-42d4-b75d-e3a158d65348
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Dim_Invoice =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\Datasets\_Invoice csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="Invoice.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\Datasets\_Invoice csv",[Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"InvoiceId", Int64.Type}, {"CustomerId", Int64.Type}, {"InvoiceDate", type datetime}, {"BillingAddress", type text}, {"BillingCity", type text}, {"BillingState", type text}, {"BillingCountry", type text}, {"BillingPostalCode", type text}, {"Total", type number}})
+		in
+		    #"Changed Type"
+	lineageTag: 37f0e71d-4b15-4e5f-8824-c0b89d33e48e
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Dim_InvoieLine =
+		let
+		    Source = Source,
+		    #"D:\Nasif Azam\Music Sales\Datasets\_InvoiceLine csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="InvoiceLine.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\Datasets\_InvoiceLine csv",[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"InvoiceLineId", Int64.Type}, {"InvoiceId", Int64.Type}, {"TrackId", Int64.Type}, {"UnitPrice", type number}, {"Quantity", Int64.Type}})
+		in
+		    #"Changed Type"
+	lineageTag: fa793af8-e668-490e-a551-79de4109f443
+	queryGroup: 'Disable Load'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

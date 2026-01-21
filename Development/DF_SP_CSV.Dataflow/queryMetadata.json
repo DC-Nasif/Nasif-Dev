@@ -1,0 +1,80 @@
+{
+  "formatVersion": "202502",
+  "computeEngineSettings": {
+    "allowModernEvaluationEngine": true
+  },
+  "name": "DF_SP_CSV",
+  "queryGroups": [
+    {
+      "id": "4f835cdb-42cf-4330-a17f-03f2816bad74",
+      "name": "Transform file from Query",
+      "order": 1
+    },
+    {
+      "id": "3cd69ae7-7765-46e2-8975-5969e7f6a01b",
+      "name": "Helper queries",
+      "parentId": "4f835cdb-42cf-4330-a17f-03f2816bad74"
+    },
+    {
+      "id": "014ad716-e930-4079-befd-45db5772e7ee",
+      "name": "Source",
+      "description": ""
+    }
+  ],
+  "documentLocale": "en-US",
+  "queriesMetadata": {
+    "Financial Data": {
+      "queryId": "349c1651-b917-490c-b9d2-0651e43fe3be",
+      "queryName": "Financial Data",
+      "loadEnabled": false
+    },
+    "Sample file": {
+      "queryId": "d74edfdc-95d0-479e-85eb-99016643bea2",
+      "queryName": "Sample file",
+      "queryGroupId": "3cd69ae7-7765-46e2-8975-5969e7f6a01b",
+      "loadEnabled": false
+    },
+    "Parameter": {
+      "queryId": "18c6bdd0-0db3-427f-b38e-d4661f645402",
+      "queryName": "Parameter",
+      "queryGroupId": "3cd69ae7-7765-46e2-8975-5969e7f6a01b",
+      "loadEnabled": false
+    },
+    "Transform Sample file": {
+      "queryId": "77a37357-b870-42bf-b9a7-e0392e642b6c",
+      "queryName": "Transform Sample file",
+      "queryGroupId": "4f835cdb-42cf-4330-a17f-03f2816bad74",
+      "loadEnabled": false
+    },
+    "Transform file": {
+      "queryId": "6ccb9e54-6c94-4e7a-99b2-5faff25d7962",
+      "queryName": "Transform file",
+      "queryGroupId": "3cd69ae7-7765-46e2-8975-5969e7f6a01b",
+      "loadEnabled": false
+    },
+    "Source": {
+      "queryId": "316ac807-e2ab-4a49-baf3-d0fc55142528",
+      "queryName": "Source",
+      "queryGroupId": "014ad716-e930-4079-befd-45db5772e7ee",
+      "loadEnabled": false
+    },
+    "Financial Data_DataDestination": {
+      "queryId": "bf5f4f2d-99fa-4de3-b3f3-dfe2ac5b4307",
+      "queryName": "Financial Data_DataDestination",
+      "isHidden": true,
+      "loadEnabled": false
+    }
+  },
+  "connections": [
+    {
+      "path": "https://anzir.sharepoint.com/sites/SharePointData",
+      "kind": "SharePoint",
+      "connectionId": "{\"ClusterId\":\"159a49b5-f492-45c8-8fe6-79cf2576a077\",\"DatasourceId\":\"4a74c250-76bd-42f4-81fa-5e7e8c82969c\"}"
+    },
+    {
+      "path": "Lakehouse",
+      "kind": "Lakehouse",
+      "connectionId": "{\"ClusterId\":\"159a49b5-f492-45c8-8fe6-79cf2576a077\",\"DatasourceId\":\"fc2ef332-21f5-4aac-a1cc-33332f820146\"}"
+    }
+  ]
+}

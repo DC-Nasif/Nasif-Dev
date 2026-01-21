@@ -1,0 +1,48 @@
+table Comperision
+	lineageTag: 934cc13a-1b05-4165-b29e-17beb0076a14
+
+	column Parameter
+		lineageTag: 791fac1b-e54d-427b-b4b8-3d6e3a55936d
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Parameter Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Parameter Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter Fields'
+		isHidden
+		lineageTag: 408126da-e598-4664-9d28-0aa0a9fb8813
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Parameter Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter Order'
+		isHidden
+		formatString: 0
+		lineageTag: 6098f16f-71ad-4926-bed8-04e2f059c6b4
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Comperision = calculated
+		mode: import
+		source =
+				{
+				    ("vs PM Revenue", NAMEOF('_Measure'[KPI Revenue vs PM Revenue]), 0),
+				    ("vs PY Revenue", NAMEOF('_Measure'[KPI Revenue vs PY Revenue]), 1)
+				}
+
+	annotation PBI_Id = 7882f3a70f154acbb3e6b30c12ff23f6
+
