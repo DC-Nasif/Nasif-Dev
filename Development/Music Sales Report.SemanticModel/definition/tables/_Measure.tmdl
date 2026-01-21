@@ -1,0 +1,267 @@
+table _Measure
+	lineageTag: ed301eef-c472-413d-862c-f03a532375b1
+
+	measure 'Total Customers' = COUNT(Customer[CustomerId])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: 5f37cb83-31e7-4cf3-81bd-6e67465d4174
+
+	measure 'Total Countries' = DISTINCTCOUNT(Fact_Invoice[BillingCountry])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: 4faef463-9bb3-49b0-8627-42fcdc054ad3
+
+	measure Highest_Profitable_Country = ```
+			
+			VAR MaxRevenue = MAXX( 
+			    SUMMARIZE( 
+			        Fact_Invoice, 
+			        Fact_Invoice[BillingCountry], 
+			        "TotalRevenue", [Total Revenue] 
+			    ), 
+			    [TotalRevenue] 
+			)
+			
+			VAR Country = 
+			SELECTCOLUMNS( 
+			    FILTER( 
+			        SUMMARIZE( 
+			            Fact_Invoice, 
+			            Fact_Invoice[BillingCountry], 
+			            "TotalRevenue", [Total Revenue] 
+			        ), 
+			        [TotalRevenue] = MaxRevenue 
+			    ), 
+			    "Country", Fact_Invoice[BillingCountry] 
+			)
+			
+			RETURN CONCATENATEX( Country, Country, ", " )
+			```
+		displayFolder: Decisions
+		lineageTag: 7aee1383-6fa5-48d5-a383-d8218ab7a7ef
+
+	measure 'PY Revenue' = ```
+			
+			CALCULATE(
+			    [Total Revenue], 
+			    SAMEPERIODLASTYEAR(Dim_Calendar[Date])
+			)
+			```
+		displayFolder: Comparisons
+		lineageTag: 67261ca2-2f08-4e14-80b1-3a8ad151fd4c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Revenue' = SUMX(Fact_Invoice, Fact_Invoice[UnitPrice] * Fact_Invoice[Quantity])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Countable KPIs
+		lineageTag: d1ae677b-930c-4e9a-88ed-36ad1d76b425
+
+	measure 'Total Quantity' = SUM(Fact_Invoice[Quantity])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: 4b49428e-09cc-4ed9-bcea-59c12e96eb61
+
+	measure 'Highest Profitable Genre' =
+			
+			VAR TopGenre =
+			    SELECTCOLUMNS(
+			        TOPN(1, VALUES(Track[GenreName]), [Total Revenue], DESC),
+			        "Genre", Track[GenreName]
+			    )
+			RETURN
+			    CONCATENATEX(TopGenre, [Genre], ", ")
+		displayFolder: Decisions
+		lineageTag: 0216f94d-b3b0-4340-a5bf-4849d44b58e1
+
+	measure 'Big Music' =
+			
+			VAR MaxMilliseconds = MAXX(ALL('Track'), 'Track'[Milliseconds])
+			VAR MaxMusicName = LOOKUPVALUE('Track'[MusicName], 'Track'[Milliseconds], MaxMilliseconds)
+			RETURN MaxMusicName
+		displayFolder: Decisions
+		lineageTag: 84c04f75-7e75-4c25-a463-32c9035e4778
+
+	measure 'Small Music' =
+			
+			VAR MinMilliseconds = MINX(ALL('Track'), 'Track'[Milliseconds])
+			VAR MinMusicName = LOOKUPVALUE('Track'[MusicName], 'Track'[Milliseconds], MinMilliseconds)
+			RETURN MinMusicName
+		displayFolder: Decisions
+		lineageTag: ebb270cd-3659-4d5c-a969-0ef13d7a7ce5
+
+	measure 'Top Artist' =
+			
+			VAR TopArtistName =
+			    SELECTCOLUMNS(
+			        TOPN(1, VALUES(Track[ArtistName]), [Total Revenue], DESC),
+			        "Artist", Track[ArtistName]
+			    )
+			RETURN
+			    CONCATENATEX(TopArtistName, [Artist], ", ")
+		displayFolder: Decisions
+		lineageTag: 5d53eea5-c842-47f8-aeab-508c303aa8b1
+
+	measure 'Total Album' = DISTINCTCOUNT(Track[AlbumTitle])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: ac5f09fa-eaaf-4302-a472-e3ac956ea266
+
+	measure 'Total Artists' = DISTINCTCOUNT(Track[ArtistName])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: 71d1cd0a-1831-48ea-b2e6-48a4c16c7736
+
+	measure 'Total Genre' = DISTINCTCOUNT(Track[GenreName])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: 21565cce-d969-4024-b019-73c03c827611
+
+	measure 'Total Music' = DISTINCTCOUNT(Track[MusicName])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: 5e54a5fc-9a7d-4075-a6ad-b4cfb7c50d03
+
+	measure 'Total Composer' = DISTINCTCOUNT(Track[Composer])
+		formatString: 0
+		displayFolder: Countable KPIs
+		lineageTag: b3ad57a5-00c6-4135-be8e-564d47cb0b69
+
+	measure 'Variance ($)' = [Total Revenue] - [PY Revenue]
+		displayFolder: Comparisons
+		lineageTag: 3936c715-4ac1-4ef7-aa1e-67949e55130f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Variance (%)' = DIVIDE([Variance ($)], [PY Revenue])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Comparisons
+		lineageTag: 29193ea0-f35c-4049-ae1e-6865e991e43b
+
+	measure 'KPI Total Revenue' = FORMAT([Total Revenue], "$#,0") & ""
+		lineageTag: 2a3e6f94-5a0d-41f2-8a25-969425276f86
+
+	measure 'KPI Revenue vs PY Revenue' =
+			
+			VAR variance_dollar = [Variance ($)]
+			VAR variance_pct = [Variance (%)]
+			VAR _sign = IF(variance_dollar>0, "🟢", "🔴")
+			RETURN
+			    _sign & FORMAT(variance_pct, "#0.0%") & " | " & _sign & FORMAT(variance_dollar, "#0,#")
+		lineageTag: b4fdf9da-5615-40e6-a8d1-b51aecaee4d3
+
+	measure MOM = ```
+			
+			VAR PrevMonthRevenue = 
+			    CALCULATE(
+			        [Total Revenue], 
+			        PREVIOUSMONTH(Dim_Calendar[Date])
+			    )
+			RETURN 
+			    [Total Revenue] - PrevMonthRevenue
+			
+			```
+		displayFolder: Comparisons
+		lineageTag: 4f3de924-079e-4d75-ac27-8d988ee59d52
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MOM (%)' = ```
+			
+			VAR PrevMonthRevenue = 
+			    CALCULATE(
+			        [Total Revenue], 
+			        PREVIOUSMONTH(Dim_Calendar[Date])
+			    )
+			RETURN 
+			    IF(
+			        NOT ISBLANK(PrevMonthRevenue),
+			        DIVIDE([Total Revenue] - PrevMonthRevenue, PrevMonthRevenue, 0)
+			    )
+			```
+		displayFolder: Comparisons
+		lineageTag: 2137d07b-580e-4c6a-8cd3-46169985e497
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure YOY = ```
+			
+			VAR PrevYearRevenue = 
+			    CALCULATE(
+			        [Total Revenue], 
+			        SAMEPERIODLASTYEAR(Dim_Calendar[Date])
+			    )
+			RETURN 
+			    [Total Revenue] - PrevYearRevenue
+			
+			```
+		displayFolder: Comparisons
+		lineageTag: af3dac9b-2301-42ab-83f9-cca5ebecd656
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'YOY (%)' = ```
+			
+			VAR PrevYearRevenue = 
+			    CALCULATE(
+			        [Total Revenue], 
+			        SAMEPERIODLASTYEAR(Dim_Calendar[Date])
+			    )
+			RETURN 
+			    IF(
+			        NOT ISBLANK(PrevYearRevenue),
+			        DIVIDE([Total Revenue] - PrevYearRevenue, PrevYearRevenue, 0)
+			    )
+			
+			```
+		displayFolder: Comparisons
+		lineageTag: 582a5b24-6a07-4e19-a1a0-78b55ac10bf8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'PM Revenue' = ```
+			
+			CALCULATE(
+			    [Total Revenue], 
+			    PARALLELPERIOD(Dim_Calendar[Date], -1, MONTH)
+			)
+			```
+		displayFolder: Comparisons
+		lineageTag: 09b27098-623e-4352-aa61-cdf2d6dc70d1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'KPI Revenue vs PM Revenue' =
+			
+			VAR variance_dollar = [Total Revenue] - [PM Revenue]
+			VAR variance_pct = DIVIDE([Total Revenue], [PM Revenue]) -1
+			VAR _sign = IF(variance_dollar>0, "🟢", "🔴")
+			RETURN
+			    _sign & FORMAT(variance_pct, "#0.0%") & " | " & _sign & FORMAT(variance_dollar, "#0,#")
+		lineageTag: 9fd41a64-73c8-48df-a0f6-0c4e4428fb1a
+
+	measure 'KPI Colour' =
+			
+			VAR variance_var = [Variance (%)]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    variance_var > 0, "Green",
+			    variance_var <= 0, "Red"
+			)
+		lineageTag: 9233ed7c-8dbb-40da-bf4b-0a64b69b8779
+
+	partition _Measure = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

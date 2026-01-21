@@ -1,0 +1,169 @@
+table Employee
+	lineageTag: 000fc8f2-8341-4a25-bfe8-312dc0abcb7b
+
+	column EmployeeId
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 050e932e-6a55-4890-9c1b-da8f1ae0db29
+		summarizeBy: none
+		sourceColumn: EmployeeId
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Title
+		dataType: string
+		lineageTag: fbd5ba92-c86e-4620-b93f-b575ad8d7f9a
+		summarizeBy: none
+		sourceColumn: Title
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReportsTo
+		dataType: int64
+		formatString: 0
+		lineageTag: ba02a6e7-267c-44ca-856d-2907cb87e67d
+		summarizeBy: sum
+		sourceColumn: ReportsTo
+
+		annotation SummarizationSetBy = Automatic
+
+	column BirthDate
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 7209c5b7-e8e0-41f3-8e7d-f1ad741d67a6
+		summarizeBy: none
+		sourceColumn: BirthDate
+
+		variation Variation
+			isDefault
+			relationship: 0e851982-707b-4e2e-912f-d372b6db41b3
+			defaultHierarchy: LocalDateTable_8d76f3ae-a3cb-4965-aadd-1af3c396823d.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column HireDate
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 4036c4c1-2fd1-442c-8fdc-39d2412e230a
+		summarizeBy: none
+		sourceColumn: HireDate
+
+		variation Variation
+			isDefault
+			relationship: 0b871317-26c5-40e0-943f-b77093f2c3dd
+			defaultHierarchy: LocalDateTable_9af1e557-a283-485c-ab48-ada66cd3dd15.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Address
+		dataType: string
+		lineageTag: af714a93-78f6-4a59-91ab-36f52a25c03e
+		summarizeBy: none
+		sourceColumn: Address
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		isHidden
+		lineageTag: 767f75dc-35f1-4525-9f45-08176cc7a0a7
+		summarizeBy: none
+		sourceColumn: City
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		isHidden
+		lineageTag: 8dc6bf15-1dc4-47aa-8937-a188e0270e9b
+		summarizeBy: none
+		sourceColumn: State
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: b264822a-abff-4538-9ff3-750338082997
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column PostalCode
+		dataType: string
+		lineageTag: 74a6f19b-7391-4dfa-b1e5-3db196c6ddd4
+		summarizeBy: none
+		sourceColumn: PostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Phone
+		dataType: string
+		lineageTag: 42899010-a8ef-4204-a76d-f5a34828097c
+		summarizeBy: none
+		sourceColumn: Phone
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fax
+		dataType: string
+		isHidden
+		lineageTag: 2d5a38ed-2404-4168-b8d7-30871452a593
+		summarizeBy: none
+		sourceColumn: Fax
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Email
+		dataType: string
+		lineageTag: f00b3775-f41f-49fb-b36f-ee50d789a1a8
+		summarizeBy: none
+		sourceColumn: Email
+
+		annotation SummarizationSetBy = Automatic
+
+	column EmployeeName
+		dataType: string
+		lineageTag: e9329047-0325-4e28-b108-1bdbc49c00af
+		summarizeBy: none
+		sourceColumn: EmployeeName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Employee = m
+		mode: import
+		source =
+				let
+				    Source = Source,
+				    #"D:\Nasif Azam\Music Sales\_Employee csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="Employee.csv"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_Employee csv",[Delimiter=",", Columns=15, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"EmployeeId", Int64.Type}, {"LastName", type text}, {"FirstName", type text}, {"Title", type text}, {"ReportsTo", Int64.Type}, {"BirthDate", type datetime}, {"HireDate", type datetime}, {"Address", type text}, {"City", type text}, {"State", type text}, {"Country", type text}, {"PostalCode", type text}, {"Phone", type text}, {"Fax", type text}, {"Email", type text}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"BirthDate", type date}, {"HireDate", type date}}),
+				    #"Merged Columns" = Table.CombineColumns(#"Changed Type1",{"FirstName", "LastName"},Combiner.CombineTextByDelimiter(" ", QuoteStyle.None),"EmployeeName")
+				in
+				    #"Merged Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

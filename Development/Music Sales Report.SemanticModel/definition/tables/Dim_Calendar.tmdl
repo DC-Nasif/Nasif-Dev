@@ -1,0 +1,234 @@
+table Dim_Calendar
+	lineageTag: 1d217cb0-07f5-4c5e-bf53-b92a9bcd32a2
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1bcee179-6abb-48f7-b094-1b0c9bbfe906
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 08dc034e-cb7c-43ba-ba29-e8ea90318fa2
+			defaultHierarchy: LocalDateTable_298a1c67-c349-45fd-a1b7-0db028fe3006.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 4733445b-3a0f-4758-be20-5240daffb5d4
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: e74bda75-7ead-427d-a4e4-ea29fe6004da
+		summarizeBy: sum
+		sourceColumn: Month
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		dataType: string
+		lineageTag: a1d0647e-e3e5-479b-8194-ff5f33330d65
+		summarizeBy: none
+		sourceColumn: Month Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: 99470ee3-54fd-4dde-b2da-7bee854d82f6
+		summarizeBy: sum
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: 0e53755b-7e4a-4e38-b6bd-cc9a08575f3e
+		summarizeBy: sum
+		sourceColumn: Day
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 93be599a-e253-4f51-b678-08975ecb90c4
+		summarizeBy: sum
+		sourceColumn: Day of Week
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		dataType: string
+		isHidden
+		lineageTag: 92679367-e5ef-4444-81b4-f09e23886c5d
+		summarizeBy: none
+		sourceColumn: Day Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Weekend?'
+		dataType: string
+		isHidden
+		lineageTag: 99d7de17-0220-410c-ac09-5042624f66bc
+		summarizeBy: none
+		sourceColumn: Is Weekend?
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Start of Month'
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 6c97326a-91cc-48d3-b29e-d1c1a0475556
+		summarizeBy: none
+		sourceColumn: Start of Month
+
+		variation Variation
+			isDefault
+			relationship: 3dddc7f9-f6c0-4fd6-8c9d-62d1355c94c2
+			defaultHierarchy: LocalDateTable_4ff2bf13-08bd-4c7b-9dc3-722f03d79466.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Year Month'
+		dataType: string
+		lineageTag: 0b6798c4-9110-48fe-a0ee-33e0143522f8
+		summarizeBy: none
+		sourceColumn: Year Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date Offset'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: beecdb08-cd46-4815-a5fe-3331dbe0dcd0
+		summarizeBy: sum
+		sourceColumn: Date Offset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 38e82651-e4a3-429f-bfdc-6618aaf14249
+		summarizeBy: count
+		sourceColumn: DateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subtraction
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 45d8f49a-59d7-4735-a61d-1b784b0d26c1
+		summarizeBy: sum
+		sourceColumn: Subtraction
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Type'
+		dataType: string
+		isHidden
+		lineageTag: 5b3eb509-9f86-447b-ada5-2dcdd5f8246b
+		summarizeBy: none
+		sourceColumn: Month Type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Calendar = m
+		mode: import
+		source = ```
+				let
+				    startYear = List.Min(List.Transform(Table.Column(Fact_Invoice, "InvoiceDate"), each Date.Year(Date.From(_)))),
+				    endYear = List.Max(List.Transform(Table.Column(Fact_Invoice, "InvoiceDate"), each Date.Year(Date.From(_)))),
+				
+				    // Generate start and end dates based on the years
+				    startDate = #date(startYear, 1, 1),
+				    endDate = #date(endYear, 12, 31),
+				
+				    // Generate a list of dates between startDate and endDate
+				    Source = List.Dates(startDate, Duration.Days(Duration.From(endDate - startDate)) + 1, #duration(1, 0, 0, 0)),
+				
+				    // Convert the list to a table
+				    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table",{{"Column1", "Date"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"Date", type date}}),
+				    
+				    // Add Year, Month, Quarter, Day, and other date-related columns
+				    #"Inserted Year" = Table.AddColumn(#"Changed Type", "Year", each Date.Year([Date]), Int64.Type),
+				    #"Inserted Month" = Table.AddColumn(#"Inserted Year", "Month", each Date.Month([Date]), Int64.Type),
+				    #"Inserted Month Name" = Table.AddColumn(#"Inserted Month", "Month Name", each Date.MonthName([Date]), type text),
+				    #"Inserted Quarter" = Table.AddColumn(#"Inserted Month Name", "Quarter", each Date.QuarterOfYear([Date]), Int64.Type),
+				    #"Inserted Day" = Table.AddColumn(#"Inserted Quarter", "Day", each Date.Day([Date]), Int64.Type),
+				    #"Inserted Day of Week" = Table.AddColumn(#"Inserted Day", "Day of Week", each Date.DayOfWeek([Date]), Int64.Type),
+				    #"Inserted Day Name" = Table.AddColumn(#"Inserted Day of Week", "Day Name", each Date.DayOfWeekName([Date]), type text),
+				    #"Added Conditional Column" = Table.AddColumn(#"Inserted Day Name", "Is Weekend?", each if [Day of Week] = 6 or [Day of Week] = 0 then "Yes" else "No"),
+				    #"Inserted Start of Month" = Table.AddColumn(#"Added Conditional Column", "Start of Month", each Date.StartOfMonth([Date]), type date),
+				    #"Added Custom" = Table.AddColumn(#"Inserted Start of Month", "Year Month", each [Year] * 100 + [Month]),
+				    
+				    // Add Date Offset (days difference from startDate)
+				    #"Added Date Offset" = Table.AddColumn(#"Added Custom", "Date Offset", each Duration.Days([Date] - startDate), Int64.Type),
+				    
+				    // Add DateKey in YYYYMMDD format
+				    #"Added DateKey" = Table.AddColumn(#"Added Date Offset", "DateKey", each [Year] * 10000 + [Month] * 100 + [Day], Int64.Type),
+				    
+				    // Add column for the current month
+				    #"Added Current Month" = Table.AddColumn(#"Added DateKey", "Current Month", each let cm = Date.StartOfMonth(DateTime.LocalNow()) in Date.Year(cm) * 100 + Date.Month(cm)),
+				    
+				    // Subtraction for determining the month type
+				    #"Added Subtraction" = Table.AddColumn(#"Added Current Month", "Subtraction", each [Year Month] - [Current Month], Int64.Type),
+				    #"Added Month Type" = Table.AddColumn(#"Added Subtraction", "Month Type", each 
+				        if [Subtraction] = 0 then "This Month" 
+				        else if [Subtraction] = 1 then "Next Month" 
+				        else if [Subtraction] = -1 then "Previous Month" 
+				        else "Other Month"),
+				    
+				    // Remove unnecessary columns
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Month Type",{"Current Month"}),
+				    #"Filtered Rows" = Table.SelectRows(#"Removed Columns", each true)
+				in
+				    #"Filtered Rows"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,40 @@
+relationship 0e851982-707b-4e2e-912f-d372b6db41b3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Employee.BirthDate
+	toColumn: LocalDateTable_8d76f3ae-a3cb-4965-aadd-1af3c396823d.Date
+
+relationship 0b871317-26c5-40e0-943f-b77093f2c3dd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Employee.HireDate
+	toColumn: LocalDateTable_9af1e557-a283-485c-ab48-ada66cd3dd15.Date
+
+relationship 08dc034e-cb7c-43ba-ba29-e8ea90318fa2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Dim_Calendar.Date
+	toColumn: LocalDateTable_298a1c67-c349-45fd-a1b7-0db028fe3006.Date
+
+relationship 3dddc7f9-f6c0-4fd6-8c9d-62d1355c94c2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Dim_Calendar.'Start of Month'
+	toColumn: LocalDateTable_4ff2bf13-08bd-4c7b-9dc3-722f03d79466.Date
+
+relationship AutoDetected_1b66e0d9-01ac-480a-a469-2ee271f36b09
+	fromColumn: PlaylistTrack.TrackId
+	toColumn: Track.TrackId
+
+relationship AutoDetected_7a3f8501-7e9d-4dde-b8ee-2bc2ae2b8f13
+	fromColumn: Fact_Invoice.CustomerId
+	toColumn: Customer.CustomerId
+
+relationship AutoDetected_b3978197-4af4-4a38-a2e3-d0c133a64044
+	fromColumn: Fact_Invoice.TrackId
+	toColumn: Track.TrackId
+
+relationship 2cefb037-1715-3ad1-cb43-e0c585a9c421
+	fromColumn: Fact_Invoice.SupportRepId
+	toColumn: Employee.EmployeeId
+
+relationship 41f427a1-6572-87dd-3ef9-ee2c323e9c57
+	fromColumn: Fact_Invoice.InvoiceDate
+	toColumn: Dim_Calendar.Date
+

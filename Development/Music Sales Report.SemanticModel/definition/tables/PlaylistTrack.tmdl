@@ -1,0 +1,47 @@
+table PlaylistTrack
+	lineageTag: 6d9da4d6-2d65-4982-9b71-7ac5da599de6
+
+	column PlaylistId
+		dataType: int64
+		formatString: 0
+		lineageTag: 5241dafc-ccd0-4eed-9e89-a7e1da040117
+		summarizeBy: count
+		sourceColumn: PlaylistId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrackId
+		dataType: int64
+		formatString: 0
+		lineageTag: 1ad432fb-7a8c-42ab-8511-46f635a8c09a
+		summarizeBy: none
+		sourceColumn: TrackId
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: e4486054-9517-4d6e-ab03-f0035e94ffd2
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PlaylistTrack = m
+		mode: import
+		source =
+				let
+				    Source = Source,
+				    #"D:\Nasif Azam\Music Sales\_PlaylistTrack csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="PlaylistTrack.csv"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_PlaylistTrack csv",[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"PlaylistId", Int64.Type}, {"TrackId", Int64.Type}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"PlaylistId"}, Playlist, {"PlaylistId"}, "Playlist", JoinKind.LeftOuter),
+				    #"Expanded Playlist" = Table.ExpandTableColumn(#"Merged Queries", "Playlist", {"Name"}, {"Name"})
+				in
+				    #"Expanded Playlist"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

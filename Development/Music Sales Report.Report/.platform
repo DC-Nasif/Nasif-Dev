@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Music Sales Report"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "cfe02922-3d24-81db-4a85-85c10555030b"
+  }
+}

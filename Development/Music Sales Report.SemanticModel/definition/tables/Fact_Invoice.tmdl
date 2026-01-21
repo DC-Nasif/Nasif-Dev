@@ -1,0 +1,165 @@
+table Fact_Invoice
+	lineageTag: 7c282acd-fafc-4708-b689-e48e6949337f
+
+	column InvoiceLineId
+		dataType: int64
+		formatString: 0
+		lineageTag: ade4e215-77ff-46e9-b4ac-32a3c55beb88
+		summarizeBy: count
+		sourceColumn: InvoiceLineId
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceId
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d19d60b3-392b-4b3b-bc00-ee101bf68f67
+		summarizeBy: count
+		sourceColumn: InvoiceId
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrackId
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0e6a4284-fc33-4c7d-8781-f9dd9570a381
+		summarizeBy: none
+		sourceColumn: TrackId
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: double
+		lineageTag: 9753bb52-45e8-4a5e-bef2-6c4fea3d9d4b
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: d3f863b0-1421-4bb8-ad1d-ff022af5721c
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerId
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 39a6cc2f-44e5-4c7d-8df7-e706f436e41f
+		summarizeBy: none
+		sourceColumn: CustomerId
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: db5b6fa5-e425-449e-8631-d6f73e0b241a
+		summarizeBy: none
+		sourceColumn: InvoiceDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column BillingAddress
+		dataType: string
+		isHidden
+		lineageTag: 78f0280a-0f38-4da8-8399-f9860d58a514
+		summarizeBy: none
+		sourceColumn: BillingAddress
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingCity
+		dataType: string
+		isHidden
+		lineageTag: 1563da94-4567-46b2-ba35-125a8a59c0f5
+		summarizeBy: none
+		sourceColumn: BillingCity
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingState
+		dataType: string
+		isHidden
+		lineageTag: 2619621b-6b64-4e5e-bb10-ada52a27e2c6
+		summarizeBy: none
+		sourceColumn: BillingState
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingCountry
+		dataType: string
+		isHidden
+		lineageTag: 53dff519-c5db-4952-a689-e6b98462802a
+		summarizeBy: none
+		sourceColumn: BillingCountry
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingPostalCode
+		dataType: string
+		lineageTag: d6ee3740-0fe8-4836-88ae-b7e417e3d6e4
+		summarizeBy: none
+		sourceColumn: BillingPostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Total
+		dataType: double
+		lineageTag: ad958a0a-76d6-4477-8c2e-5d6c5e6a9e44
+		summarizeBy: sum
+		sourceColumn: Total
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SupportRepId
+		dataType: int64
+		formatString: 0
+		lineageTag: 325bf9f7-192c-4f79-b2c7-af2dfb357b5e
+		summarizeBy: none
+		sourceColumn: SupportRepId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Invoice = m
+		mode: import
+		source =
+				let
+				    Source = Table.NestedJoin(Dim_InvoieLine, {"InvoiceId"}, Dim_Invoice, {"InvoiceId"}, "Dim_Invoice", JoinKind.LeftOuter),
+				    #"Expanded Dim_Invoice" = Table.ExpandTableColumn(Source, "Dim_Invoice", {"CustomerId", "InvoiceDate", "BillingAddress", "BillingCity", "BillingState", "BillingCountry", "BillingPostalCode", "Total"}, {"CustomerId", "InvoiceDate", "BillingAddress", "BillingCity", "BillingState", "BillingCountry", "BillingPostalCode", "Total"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Dim_Invoice",{{"InvoiceDate", type date}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"CustomerId"}, Customer, {"CustomerId"}, "Customer", JoinKind.LeftOuter),
+				    #"Expanded Customer" = Table.ExpandTableColumn(#"Merged Queries", "Customer", {"SupportRepId"}, {"SupportRepId"})
+				in
+				    #"Expanded Customer"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

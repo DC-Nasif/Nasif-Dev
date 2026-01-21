@@ -1,0 +1,141 @@
+table Track
+	lineageTag: db74e780-98ea-4ec4-b7b1-4cbee50120e0
+
+	column TrackId
+		dataType: int64
+		formatString: 0
+		lineageTag: b8ecef33-d447-4cda-a5ad-e456af413232
+		summarizeBy: none
+		sourceColumn: TrackId
+
+		annotation SummarizationSetBy = Automatic
+
+	column MusicName
+		dataType: string
+		lineageTag: 1a1830b9-a512-4fc7-b65c-05744048d660
+		summarizeBy: none
+		sourceColumn: MusicName
+
+		annotation SummarizationSetBy = Automatic
+
+	column AlbumId
+		dataType: int64
+		formatString: 0
+		lineageTag: e27da935-8947-42d0-a9a4-d921e62fd206
+		summarizeBy: count
+		sourceColumn: AlbumId
+
+		annotation SummarizationSetBy = Automatic
+
+	column MediaTypeId
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ba34457-8c37-4925-aab0-5bf1264a1fa2
+		summarizeBy: count
+		sourceColumn: MediaTypeId
+
+		annotation SummarizationSetBy = Automatic
+
+	column GenreId
+		dataType: int64
+		formatString: 0
+		lineageTag: 24fef848-2fb3-4c96-9864-c85e1fed059d
+		summarizeBy: count
+		sourceColumn: GenreId
+
+		annotation SummarizationSetBy = Automatic
+
+	column Composer
+		dataType: string
+		lineageTag: abc31529-dfd4-45e9-8ae3-d225efa4dc42
+		summarizeBy: none
+		sourceColumn: Composer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Milliseconds
+		dataType: int64
+		formatString: 0
+		lineageTag: f903c1b9-fdd2-41e4-8ee2-c78a0cef5634
+		summarizeBy: sum
+		sourceColumn: Milliseconds
+
+		annotation SummarizationSetBy = Automatic
+
+	column Bytes
+		dataType: int64
+		formatString: 0
+		lineageTag: 535be632-ae92-493d-8fdc-2d8103b7035b
+		summarizeBy: sum
+		sourceColumn: Bytes
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: double
+		lineageTag: 987c36c5-c72d-4d09-b413-099e7dc08677
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MediaTypeName
+		dataType: string
+		lineageTag: a352ca38-dbd5-45f5-92ca-2a4315749ddc
+		summarizeBy: none
+		sourceColumn: MediaTypeName
+
+		annotation SummarizationSetBy = Automatic
+
+	column AlbumTitle
+		dataType: string
+		lineageTag: 2f0b4310-71dc-4f21-8379-de28d0bb8dc4
+		summarizeBy: none
+		sourceColumn: AlbumTitle
+
+		annotation SummarizationSetBy = Automatic
+
+	column ArtistName
+		dataType: string
+		lineageTag: 56ca1576-a9e9-4616-99d2-dd23e5d958cb
+		summarizeBy: none
+		sourceColumn: ArtistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column GenreName
+		dataType: string
+		lineageTag: 24a3830c-3697-4273-b5ec-103f396e6c8d
+		summarizeBy: none
+		sourceColumn: GenreName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Track = m
+		mode: import
+		source =
+				let
+				    Source = Source,
+				    #"D:\Nasif Azam\Music Sales\_Track csv" = Source{[#"Folder Path"="D:\Nasif Azam\Music Sales\Datasets\",Name="Track.csv"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"D:\Nasif Azam\Music Sales\_Track csv",[Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"TrackId", Int64.Type}, {"Name", type text}, {"AlbumId", Int64.Type}, {"MediaTypeId", Int64.Type}, {"GenreId", Int64.Type}, {"Composer", type text}, {"Milliseconds", Int64.Type}, {"Bytes", Int64.Type}, {"UnitPrice", type number}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"MediaTypeId"}, MediaType, {"MediaTypeId"}, "MediaType", JoinKind.LeftOuter),
+				    #"Expanded MediaType" = Table.ExpandTableColumn(#"Merged Queries", "MediaType", {"Name"}, {"Name.1"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Expanded MediaType",{{"Name.1", "MediaTypeName"}}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Renamed Columns", {"AlbumId"}, Album, {"AlbumId"}, "Album", JoinKind.LeftOuter),
+				    #"Expanded Album" = Table.ExpandTableColumn(#"Merged Queries1", "Album", {"Title", "ArtistName"}, {"Title", "ArtistName"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Expanded Album",{{"Title", "AlbumTitle"}}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Renamed Columns1", {"GenreId"}, Genre, {"GenreId"}, "Genre", JoinKind.LeftOuter),
+				    #"Expanded Genre" = Table.ExpandTableColumn(#"Merged Queries2", "Genre", {"Name"}, {"Name.1"}),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Expanded Genre",{{"Name.1", "GenreName"}, {"Name", "MusicName"}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Renamed Columns2","","Others",Replacer.ReplaceValue,{"Composer"})
+				in
+				    #"Replaced Value"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
