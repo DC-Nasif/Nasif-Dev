@@ -82,42 +82,65 @@ class FabricDeploymentManager:
     #         print(f"[ERROR] Workspace error: {e}")
     #         raise
     
-    def create_workspace(self, workspace_name, workspace_id=None):
-        """Create workspace if it doesn't exist and return the workspace ID"""
-        try:
-            if workspace_id:
-                url = f"{self.fabric_api_url}/workspaces/{workspace_id}"
-                response = requests.get(url, headers=self.get_headers())
+    # def create_workspace(self, prod_workspace_name, workspace_id=None):
+    #     """Create workspace if it doesn't exist and return the workspace ID"""
+    #     try:
+    #         if workspace_id:
+    #             url = f"{self.fabric_api_url}/workspaces/{workspace_id}"
+    #             response = requests.get(url, headers=self.get_headers())
                 
-                if response.status_code == 200:
-                    print(f"[OK] Workspace '{workspace_name}' exists")
-                    return workspace_id  # Return the existing workspace ID
+    #             if response.status_code == 200:
+    #                 print(f"[OK] Workspace '{prod_workspace_name}' exists")
+    #                 return workspace_id  # Return the existing workspace ID
             
-            payload = {
-                "displayName": workspace_name,
-                "capacityId": self.capacity_id
-            }
-            response = requests.post(
-                f"{self.fabric_api_url}/workspaces",
-                headers=self.get_headers(),
-                json=payload
-            )
+    #         payload = {
+    #             "displayName": prod_workspace_name,
+    #             "capacityId": self.capacity_id
+    #         }
+    #         response = requests.post(
+    #             f"{self.fabric_api_url}/workspaces",
+    #             headers=self.get_headers(),
+    #             json=payload
+    #         )
             
-            if response.status_code in [200, 201]:
-                workspace = response.json()
-                print(f"[OK] Workspace created successfully")
-                return workspace["id"]  # Return the newly created workspace ID
-            elif response.status_code == 409:
-                print(f"[OK] Workspace already exists (409)")
-                return workspace_id if workspace_id else None  # Return the existing workspace ID
-            else:
-                print(f"[ERROR] Workspace creation failed: {response.status_code}")
-                return None
-        except Exception as e:
-            print(f"[ERROR] Workspace error: {e}")
-            raise
+    #         if response.status_code in [200, 201]:
+    #             workspace = response.json()
+    #             print(f"[OK] Workspace created successfully")
+    #             return workspace["id"]  # Return the newly created workspace ID
+    #         elif response.status_code == 409:
+    #             print(f"[OK] Workspace already exists (409)")
+    #             return workspace_id if workspace_id else None  # Return the existing workspace ID
+    #         else:
+    #             print(f"[ERROR] Workspace creation failed: {response.status_code}")
+    #             return None
+    #     except Exception as e:
+    #         print(f"[ERROR] Workspace error: {e}")
+    #         raise
 
+    def get_workspace_id(access_token, prod_workspace_name):
+        headers = {"Authorization": f"Bearer {access_token}"}
+        res = requests.get(f"https://api.fabric.microsoft.com/v1/workspaces", headers=headers)
+        res.raise_for_status()
     
+        for ws in res.json().get("value", []):
+            if ws["displayName"].lower() == prod_workspace_name.lower():
+                print(f"Workspace exists: {prod_workspace_name} ({ws['id']})")
+                return ws["id"]
+    
+        print(f"Workspace does not exist: {prod_workspace_name}")
+        return None
+    
+    def create_workspace(access_token, prod_workspace_name, capacity_id):
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+        body = {"displayName": prod_workspace_name, "capacityId": capacity_id}
+    
+        res = requests.post(f"https://api.fabric.microsoft.com/v1/workspaces", headers=headers, json=body)
+        res.raise_for_status()
+        ws_id = res.json()["id"]
+        print(f"✅ Workspace created: {prod_workspace_name} ({ws_id})")
+        return ws_id
+
+
     def verify_service_principal_access(self):
         """Verify SP can access Fabric API"""
         try:
