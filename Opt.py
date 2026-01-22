@@ -2,7 +2,7 @@ import os
 import sys
 import json
 # import yaml
-# import requests
+import requests
 import time
 # import pyodbc
  
