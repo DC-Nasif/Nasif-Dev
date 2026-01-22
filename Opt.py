@@ -29,6 +29,8 @@ client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
 
 # Fabric Capacity ID
 capacity_id="59AB60EE-4E92-4A22-A8E0-0B31B00314CD"
+
+workspace_name = "Nasif-Prod"
  
  
 # ---------------- SERVICE PRINCIPAL ----------------
@@ -72,9 +74,10 @@ def get_workspace_id(token, workspace_name):
  
  
 def main():
-    get_access_token(tenant_id, client_id, client_secret)
+    tenant_id, client_id, client_secret, 
+    token = get_access_token(tenant_id, client_id, client_secret)
     get_workspace_id(token, workspace_name)
-     
+    
      
 if __name__ == "__main__":
     try:
