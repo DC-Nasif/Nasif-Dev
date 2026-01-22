@@ -31,6 +31,23 @@ client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
 capacity_id="59AB60EE-4E92-4A22-A8E0-0B31B00314CD"
 
 workspace_name = "Nasif-Prod"
+
+roles = [
+    {
+        "role_name": "Admin",
+        "users": [
+            "user-object-id-1",
+            "user-object-id-2"
+        ]
+    }
+    # {
+    #     "role_name": "Member",
+    #     "users": [
+    #         "user-object-id-3"
+    #     ]
+    # }
+]
+
  
  
 # ---------------- SERVICE PRINCIPAL ----------------
@@ -103,7 +120,6 @@ def assign_roles(token, workspace_id, roles):
  
 def main():
     tenant_id, client_id, client_secret
-    roles=[{"role_name": "Admin"}]
     token = get_access_token(tenant_id, client_id, client_secret)
     workspace_id = get_workspace_id(token, workspace_name)
     assign_roles(token, workspace_id, roles)
