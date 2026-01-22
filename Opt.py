@@ -73,10 +73,41 @@ def get_workspace_id(token, workspace_name):
     return None
  
  
+def get_role_assignments(token, workspace_id):
+    headers = {"Authorization": f"Bearer {token}"}
+    res = requests.get(f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", headers=headers)
+    res.raise_for_status()
+    return res.json().get("value", [])
+ 
+ 
+def assign_roles(token, workspace_id, roles):
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments(token, workspace_id)}
+ 
+    for role in roles:
+        role_name = role["role_name"]
+        for user_id in role.get("users", []):
+            if (user_id, role_name) in existing:
+                print(f"[SKIP] {user_id} already assigned {role_name}")
+                continue
+ 
+            body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
+            res = requests.post(
+                f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+                headers=headers,
+                json=body
+            )
+            res.raise_for_status()
+            print(f"[ADD] Assigned {role_name} to {user_id}")
+ 
+ 
 def main():
-    tenant_id, client_id, client_secret, 
+    tenant_id, client_id, client_secret
+    roles=[{"role_name": "Admin"}]
     token = get_access_token(tenant_id, client_id, client_secret)
-    get_workspace_id(token, workspace_name)
+    workspace_id = get_workspace_id(token, workspace_name)
+    assign_roles(token, workspace_id, roles)
+    # Deploy
     
      
 if __name__ == "__main__":
