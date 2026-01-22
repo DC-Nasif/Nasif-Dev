@@ -47,8 +47,43 @@ class FabricDeploymentManager:
             "Content-Type": "application/json"
         }
     
+    # def create_workspace(self, workspace_name, workspace_id=None):
+    #     """Create workspace if it doesn't exist"""
+    #     try:
+    #         if workspace_id:
+    #             url = f"{self.fabric_api_url}/workspaces/{workspace_id}"
+    #             response = requests.get(url, headers=self.get_headers())
+                
+    #             if response.status_code == 200:
+    #                 print(f"[OK] Workspace '{workspace_name}' exists")
+    #                 return response.json()
+            
+    #         payload = {
+    #             "displayName": workspace_name,
+    #             "capacityId": self.capacity_id
+    #         }
+    #         response = requests.post(
+    #             f"{self.fabric_api_url}/workspaces",
+    #             headers=self.get_headers(),
+    #             json=payload
+    #         )
+            
+    #         if response.status_code in [200, 201]:
+    #             workspace = response.json()
+    #             print(f"[OK] Workspace created successfully")
+    #             return workspace
+    #         elif response.status_code == 409:
+    #             print(f"[OK] Workspace already exists (409)")
+    #             return {"id": workspace_id} if workspace_id else None
+    #         else:
+    #             print(f"[ERROR] Workspace creation failed: {response.status_code}")
+    #             return None
+    #     except Exception as e:
+    #         print(f"[ERROR] Workspace error: {e}")
+    #         raise
+    
     def create_workspace(self, workspace_name, workspace_id=None):
-        """Create workspace if it doesn't exist"""
+        """Create workspace if it doesn't exist and return the workspace ID"""
         try:
             if workspace_id:
                 url = f"{self.fabric_api_url}/workspaces/{workspace_id}"
@@ -56,7 +91,7 @@ class FabricDeploymentManager:
                 
                 if response.status_code == 200:
                     print(f"[OK] Workspace '{workspace_name}' exists")
-                    return response.json()
+                    return workspace_id  # Return the existing workspace ID
             
             payload = {
                 "displayName": workspace_name,
@@ -71,16 +106,17 @@ class FabricDeploymentManager:
             if response.status_code in [200, 201]:
                 workspace = response.json()
                 print(f"[OK] Workspace created successfully")
-                return workspace
+                return workspace["id"]  # Return the newly created workspace ID
             elif response.status_code == 409:
                 print(f"[OK] Workspace already exists (409)")
-                return {"id": workspace_id} if workspace_id else None
+                return workspace_id if workspace_id else None  # Return the existing workspace ID
             else:
                 print(f"[ERROR] Workspace creation failed: {response.status_code}")
                 return None
         except Exception as e:
             print(f"[ERROR] Workspace error: {e}")
             raise
+
     
     def verify_service_principal_access(self):
         """Verify SP can access Fabric API"""
