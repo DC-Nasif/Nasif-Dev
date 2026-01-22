@@ -348,7 +348,9 @@ class FabricDeploymentManager:
         
         # Create/verify workspace
         print("\n--- Workspace Setup ---")
-        ws = self.create_workspace(self.prod_workspace_name, self.prod_workspace_id)
+        self.get_workspace_id(self.access_token, self.prod_workspace_name)
+        # ws = self.create_workspace(self.prod_workspace_name, self.prod_workspace_id)
+        ws = self.create_workspace(self.access_token, self.prod_workspace_name, self.capacity_id)
         if not ws:
             print("[FATAL] Cannot proceed without workspace")
             return
