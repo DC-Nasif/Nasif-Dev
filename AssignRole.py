@@ -1,6 +1,7 @@
 import requests
 from azure.identity import InteractiveBrowserCredential
 from azure.identity import DeviceCodeCredential
+from azure.identity import ClientSecretCredential
 
 # ============== CONFIGURATION ==============
 
@@ -12,7 +13,12 @@ ROLE = "Member"  # Options: Admin, Member, Contributor, Viewer
 
 # Get token for both Graph API and Fabric API
 # credential = InteractiveBrowserCredential()
-credential = DeviceCodeCredential(client_id="c8bbc001-4cfc-4041-897d-949857474f4f", tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3")
+# credential = DeviceCodeCredential(client_id="c8bbc001-4cfc-4041-897d-949857474f4f", tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3")
+credential = ClientSecretCredential(
+    tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3",
+    client_id="c8bbc001-4cfc-4041-897d-949857474f4f",
+    client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
+)
 
 # Token for Microsoft Graph (to lookup user)
 graph_token = credential.get_token("https://graph.microsoft.com/.default").token
