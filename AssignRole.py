@@ -28,7 +28,7 @@ fabric_token = credential.get_token("https://api.fabric.microsoft.com/.default")
 
 # ============== STEP 1: GET USER OBJECT ID FROM EMAIL ==============
 
-print(f"🔍 Looking up Object ID for {USER_EMAIL}...")
+print(f"Looking up Object ID for {USER_EMAIL}...")
 
 graph_url = f"https://graph.microsoft.com/v1.0/users/{USER_EMAIL}"
 
@@ -37,7 +37,7 @@ graph_headers = {"Authorization": f"Bearer {graph_token}"}
 user_response = requests.get(graph_url, headers=graph_headers)
 
 if user_response.status_code != 200:
-    print(f"❌ Failed to find user: {user_response.status_code}")
+    print(f"Failed to find user: {user_response.status_code}")
     print(user_response.text)
     exit()
 
@@ -45,11 +45,11 @@ user_object_id = user_response.json().get("id")
 
 display_name = user_response.json().get("displayName")
 
-print(f"✅ Found: {display_name} ({user_object_id})")
+print(f"Found: {display_name} ({user_object_id})")
 
 # ============== STEP 2: ADD USER TO WORKSPACE ==============
 
-print(f"➕ Adding user to workspace as {ROLE}...")
+print(f"Adding user to workspace as {ROLE}...")
 
 fabric_url = f"https://api.fabric.microsoft.com/v1/workspaces/{WORKSPACE_ID}/roleAssignments"
 fabric_headers = {
@@ -68,9 +68,9 @@ payload = {
 response = requests.post(fabric_url, headers=fabric_headers, json=payload)
 
 if response.status_code == 201:
-    print(f"✅ Successfully added {USER_EMAIL} as {ROLE}")
+    print(f"Successfully added {USER_EMAIL} as {ROLE}")
 elif response.status_code == 409:
-    print(f"⚠️ User already exists in workspace")
+    print(f"User already exists in workspace")
 else:
-    print(f"❌ Failed: {response.status_code}")
+    print(f"Failed: {response.status_code}")
     print(response.text)
