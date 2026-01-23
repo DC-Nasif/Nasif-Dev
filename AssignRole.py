@@ -1,5 +1,6 @@
 import requests
 from azure.identity import InteractiveBrowserCredential
+from azure.identity import DeviceCodeCredential
 
 # ============== CONFIGURATION ==============
 
@@ -10,14 +11,13 @@ ROLE = "Member"  # Options: Admin, Member, Contributor, Viewer
 # ============== AUTHENTICATION ==============
 
 # Get token for both Graph API and Fabric API
-credential = InteractiveBrowserCredential()
+# credential = InteractiveBrowserCredential()
+credential = DeviceCodeCredential(client_id="c8bbc001-4cfc-4041-897d-949857474f4f", tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3")
 
 # Token for Microsoft Graph (to lookup user)
-
 graph_token = credential.get_token("https://graph.microsoft.com/.default").token
 
 # Token for Fabric API
-
 fabric_token = credential.get_token("https://api.fabric.microsoft.com/.default").token
 
 # ============== STEP 1: GET USER OBJECT ID FROM EMAIL ==============
