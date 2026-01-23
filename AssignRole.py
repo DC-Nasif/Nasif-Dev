@@ -6,7 +6,7 @@ from azure.identity import ClientSecretCredential
 # ============== CONFIGURATION ==============
 
 WORKSPACE_ID = "6404d31d-7060-4956-9f8a-c7e2b65de6ac"
-USER_EMAIL = "nazmulhasan.munna@datacrafters.io"
+USER_EMAIL = "nasif.azam@datacrafters.io"
 ROLE = "Member"  # Options: Admin, Member, Contributor, Viewer
 
 # ============== AUTHENTICATION ==============
