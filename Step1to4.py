@@ -119,39 +119,31 @@ def get_workspace_users():
     print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
     return response.json().get("value", [])
 
-def get_another_token(scope):
-    try:
-        credential = ClientSecretCredential(
-            tenant_id=TENANT_ID,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET
-        )
-        token = credential.get_token(
-            "https://api.fabric.microsoft.com/.default"
-            ).token
-        print("[OK] Secondary token generated successfully")
-        print("Secondary token: ", token)
-        return token
-    except Exception as e:
-        print(f"[ERROR] Error generating Secondary token: {e}")
-        raise e
+def get_token(scope):
+    credential = ClientSecretCredential(
+        tenant_id=TENANT_ID,
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET
+    )
+    token = credential.get_token(scope).token
+    return token
+
     
     # token = credential.get_token(scope)
     # return token.token
 
 def get_graph_headers():
-    token = get_another_token("https://graph.microsoft.com/.default")
     return {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {get_token('https://graph.microsoft.com/.default')}",
         "Content-Type": "application/json"
     }
 
 def get_fabric_headers():
-    token = get_another_token("https://api.fabric.microsoft.com/.default")
     return {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {get_token('https://api.fabric.microsoft.com/.default')}",
         "Content-Type": "application/json"
     }
+
 
 
 # def get_user_object_id(email):
@@ -168,6 +160,7 @@ def get_user_object_id(email):
     response.raise_for_status()
     print(response.json()["id"])
     return response.json()["id"]
+
 
 
 
@@ -225,7 +218,8 @@ def main():
     get_workspace_users()
     
     
-    get_user_object_id("nazmulhasan.munna@datacrafters.io")
+    user_id = get_user_object_id("nazmulhasan.munna@datacrafters.io")
+    print(user_id)
     
      
 if __name__ == "__main__":
