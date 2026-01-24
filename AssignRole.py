@@ -8,7 +8,8 @@ from azure.identity import ClientSecretCredential
 # WORKSPACE_ID = "6404d31d-7060-4956-9f8a-c7e2b65de6ac"
 # USER_EMAIL = "nasif.azam@datacrafters.io"
 WORKSPACE_ID = "2a88d69f-ece7-4f0a-ba33-7d76cb468b36"
-USER_EMAIL = "datacraft@canlak.com"
+# USER_EMAIL = "datacraft@canlak.com"
+USER_EMAIL = "data.crafters@canlak.com"
 ROLE = "Contributor"  # Options: Admin, Member, Contributor, Viewer
 
 # ============== AUTHENTICATION ==============
@@ -33,7 +34,7 @@ fabric_token = credential.get_token("https://api.fabric.microsoft.com/.default")
 
 # ============== STEP 1: GET USER OBJECT ID FROM EMAIL ==============
 
-print(f"Looking up Object ID for {USER_EMAIL}...")
+print(f"Looking up Object ID for {USER_EMAIL}")
 
 graph_url = f"https://graph.microsoft.com/v1.0/users/{USER_EMAIL}"
 
