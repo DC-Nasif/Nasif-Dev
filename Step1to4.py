@@ -118,12 +118,55 @@ def get_workspace_users():
     print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
     return response.json().get("value", [])
 
+def get_another_token(scope):
+    try:
+        credential = ClientSecretCredential(
+            tenant_id=TENANT_ID,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET
+        )
+        token = credential.get_token(
+            "https://api.fabric.microsoft.com/.default"
+            ).token
+        print("[OK] Secondary token generated successfully")
+        return token
+    except Exception as e:
+        print(f"[ERROR] Error generating Secondary token: {e}")
+        raise e
+    
+    # token = credential.get_token(scope)
+    # return token.token
+
+def get_graph_headers():
+    token = get_another_token("https://graph.microsoft.com/.default")
+    return {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+def get_fabric_headers():
+    token = get_another_token("https://api.fabric.microsoft.com/.default")
+    return {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+
+# def get_user_object_id(email):
+#     url = f"https://graph.microsoft.com/v1.0/users/{email}"
+#     response = requests.get(url, headers=get_headers())
+#     response.raise_for_status()
+#     print(response.json()["id"])
+#     return response.json()["id"]
+
+
 def get_user_object_id(email):
     url = f"https://graph.microsoft.com/v1.0/users/{email}"
-    response = requests.get(url, headers=get_headers())
+    response = requests.get(url, headers=get_graph_headers())
     response.raise_for_status()
     print(response.json()["id"])
     return response.json()["id"]
+
 
 
 
