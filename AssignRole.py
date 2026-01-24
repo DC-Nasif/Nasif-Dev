@@ -5,9 +5,11 @@ from azure.identity import ClientSecretCredential
 
 # ============== CONFIGURATION ==============
 
-WORKSPACE_ID = "6404d31d-7060-4956-9f8a-c7e2b65de6ac"
-USER_EMAIL = "nasif.azam@datacrafters.io"
-ROLE = "Member"  # Options: Admin, Member, Contributor, Viewer
+# WORKSPACE_ID = "6404d31d-7060-4956-9f8a-c7e2b65de6ac"
+# USER_EMAIL = "nasif.azam@datacrafters.io"
+WORKSPACE_ID = "2a88d69f-ece7-4f0a-ba33-7d76cb468b36"
+USER_EMAIL = "datacraft@canlak.com"
+ROLE = "Contributor"  # Options: Admin, Member, Contributor, Viewer
 
 # ============== AUTHENTICATION ==============
 
@@ -15,9 +17,12 @@ ROLE = "Member"  # Options: Admin, Member, Contributor, Viewer
 # credential = InteractiveBrowserCredential()
 # credential = DeviceCodeCredential(client_id="c8bbc001-4cfc-4041-897d-949857474f4f", tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3")
 credential = ClientSecretCredential(
-    tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3",
-    client_id="c8bbc001-4cfc-4041-897d-949857474f4f",
-    client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
+    # tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3",
+    # client_id="c8bbc001-4cfc-4041-897d-949857474f4f",
+    # client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
+    tenant_id="125bc287-bece-49ea-93f8-c7fb31c7ddda",
+    client_id="40bedb2f-3d98-4666-9933-09f2a2d45c55",
+    client_secret="yGo8Q~zgsLxS9zwGQjd9~OBvKAB~LWKDGunPfbgu"
 )
 
 # Token for Microsoft Graph (to lookup user)
