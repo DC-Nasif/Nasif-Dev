@@ -33,7 +33,7 @@ def get_or_create_workspace():
         "Content-Type": "application/json"
     }
 
-    # 1️⃣ Check existing workspaces
+    # 1️ Check existing workspaces
     resp = requests.get(
         f"{FABRIC_API}/workspaces",
         headers=headers
@@ -42,10 +42,10 @@ def get_or_create_workspace():
 
     for ws in resp.json().get("value", []):
         if ws["displayName"].lower() == WORKSPACE_NAME.lower():
-            print(f"✅ Workspace exists: {WORKSPACE_NAME}")
+            print(f"Workspace exists: {WORKSPACE_NAME}")
             return ws["id"]
 
-    # 2️⃣ Create workspace if not found
+    # 2️ Create workspace if not found
     payload = {
         "displayName": WORKSPACE_NAME,
         "capacityId": CAPACITY_ID
@@ -59,7 +59,7 @@ def get_or_create_workspace():
     create_resp.raise_for_status()
 
     ws = create_resp.json()
-    print(f"🆕 Workspace created: {WORKSPACE_NAME}")
+    print(f"Workspace created: {WORKSPACE_NAME}")
     return ws["id"]
 
 
