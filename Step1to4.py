@@ -17,6 +17,15 @@ FABRIC_API = "https://api.fabric.microsoft.com/v1"
 access_token = None
 workspace_id = None
 
+roles = [
+    {
+        "role_name": "Admin",
+        "users": [
+            "c8bbc001-4cfc-4041-897d-949857474f4f"
+        ]
+    }
+]
+
 def get_access_token():
     try:
         credential = ClientSecretCredential(
@@ -66,21 +75,14 @@ def verify_service_principal_access():
 
 
 def get_or_create_workspace():
-    # token = get_access_token()
-
-    # headers = {
-    #     "Authorization": f"Bearer {token}",
-    #     "Content-Type": "application/json"
-    # }
-
     # 1️ Check existing workspaces
-    get_response = requests.get(
+    get_ws_response = requests.get(
         f"{FABRIC_API}/workspaces", 
         headers=get_headers()
     )
-    get_response.raise_for_status()
+    get_ws_response.raise_for_status()
 
-    for ws in get_response.json().get("value", []):
+    for ws in get_ws_response.json().get("value", []):
         if ws["displayName"].lower() == WORKSPACE_NAME.lower():
             global workspace_id
             workspace_id = ws['id']
@@ -107,15 +109,45 @@ def get_or_create_workspace():
     return ws["id"]
 
 
+def get_role_assignments():
+    get_role_response = requests.get(
+        f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
+        headers=get_headers()
+        )
+    get_role_response.raise_for_status()
+    return get_role_response.json().get("value", [])
+
+
+def assign_roles(roles):
+    # headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
+ 
+    for role in roles:
+        role_name = role["role_name"]
+        for user_id in role.get("users", []):
+            if (user_id, role_name) in existing:
+                print(f"[SKIP] {user_id} already assigned {role_name}")
+                continue
+ 
+            body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
+            res = requests.post(
+                f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+                headers=get_headers(),
+                json=body
+            )
+            res.raise_for_status()
+            print(f"[ADD] Assigned {role_name} to {user_id}")
+ 
+
 def main():
-    print("\n=== Microsoft Fabric Deployment ===\n")
+    print("\n=== Microsoft Fabric Deployment ===")
     
     # Step 1: Get token
-    print("--- Get Fabric Access Token ---")
+    print("\n--- Get Fabric Access Token ---")
     get_access_token()
     
     # Step 2: Verify Service Principal access
-    print("--- Verifying Authentication ---")
+    print("\n--- Verifying Authentication ---")
     if not verify_service_principal_access():
         print("[FATAL] Service Principal cannot access Fabric API")
         return
@@ -123,6 +155,10 @@ def main():
     # Step 3: Create/verify workspace
     print("\n--- Workspace Setup ---")    
     get_or_create_workspace()
+    
+    # Step 4: Assign roles
+    print("\n--- Assigning Roles ---")
+    assign_roles(roles)
     
      
 if __name__ == "__main__":
