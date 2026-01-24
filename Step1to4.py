@@ -171,17 +171,23 @@ def get_fabric_headers():
 #     return response.json()["id"]
 
 def get_user_object_id(email):
-    encoded_email = quote(email)
-    url = f"https://graph.microsoft.com/v1.0/users/{encoded_email}"
+    url = "https://graph.microsoft.com/v1.0/users"
+    params = {
+        "$filter": f"userPrincipalName eq '{email}'"
+    }
 
-    response = requests.get(url, headers=get_graph_headers())
+    response = requests.get(
+        url,
+        headers=get_graph_headers(),
+        params=params
+    )
     response.raise_for_status()
 
-    print("User Object ID:", response.json()["id"])
-    return response.json()["id"]
+    users = response.json().get("value", [])
+    if not users:
+        raise Exception("User not found")
 
-
-
+    return users[0]["id"]
 
 
 
