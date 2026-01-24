@@ -16,7 +16,7 @@ FABRIC_API = "https://api.fabric.microsoft.com/v1"
 # def load_user_input(path="config.json"):
 #     with open(path, "r", encoding="utf-8") as f:
 #         return json.load(f)
- 
+
  
  # Azure Tenant ID
 tenant_id="ca3f056e-4448-425a-92a9-e9d3291ea2f3"
