@@ -118,6 +118,14 @@ def get_workspace_users():
     print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
     return response.json().get("value", [])
 
+def get_user_object_id(email):
+    url = f"https://graph.microsoft.com/v1.0/users/{email}"
+    response = requests.get(url, headers=get_headers())
+    response.raise_for_status()
+    print(response.json()["id"])
+    return response.json()["id"]
+
+
 
 # def get_role_assignments():
 #     get_role_response = requests.get(
@@ -170,6 +178,9 @@ def main():
     print("\n--- Assigning Roles ---")
     # assign_roles(roles)
     get_workspace_users()
+    
+    
+    get_user_object_id("nazmulhasan.munna@datacrafters.io")
     
      
 if __name__ == "__main__":
