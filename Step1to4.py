@@ -117,121 +117,98 @@ def get_workspace_users():
         headers=get_headers()
     )
     response.raise_for_status()
-    # print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
     users = response.json().get("value", [])
+    existing_users = set()
     for u in users:
         email_or_id = u.get("emailAddress", u.get("identifier"))
         role = u.get("groupUserAccessRight")
         principal_type = u.get("principalType")
+        existing_users.add(email_or_id)
         print(f"** Email/ID: {email_or_id}, Role: {role}, PrincipalType: {principal_type}")
-    return response.json().get("value", [])
 
-def get_token(scope):
-    try:
-        credential = ClientSecretCredential(
-            tenant_id=TENANT_ID,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET
-        )
-        token = credential.get_token(scope).token
-        print(f"[OK] Token generated for scope: {scope}")
-        return token
-    except Exception as e:
-        print(f"[ERROR] Token generation failed: {e}")
-        raise
+    return existing_users
+
+# def get_token(scope):
+#     try:
+#         credential = ClientSecretCredential(
+#             tenant_id=TENANT_ID,
+#             client_id=CLIENT_ID,
+#             client_secret=CLIENT_SECRET
+#         )
+#         token = credential.get_token(scope).token
+#         print(f"[OK] Token generated for scope: {scope}")
+#         return token
+#     except Exception as e:
+#         print(f"[ERROR] Token generation failed: {e}")
+#         raise
 
     
-    # token = credential.get_token(scope)
-    # return token.token
+#     # token = credential.get_token(scope)
+#     # return token.token
 
-def get_graph_headers():
-    token = get_token("https://graph.microsoft.com/.default")
-    return {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+# def get_graph_headers():
+#     token = get_token("https://graph.microsoft.com/.default")
+#     return {
+#         "Authorization": f"Bearer {token}",
+#         "Content-Type": "application/json"
+#     }
 
-def get_fabric_headers():
-    token = get_token("https://api.fabric.microsoft.com/.default")
-    return {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-
-
-
+# def get_fabric_headers():
+#     token = get_token("https://api.fabric.microsoft.com/.default")
+#     return {
+#         "Authorization": f"Bearer {token}",
+#         "Content-Type": "application/json"
+#     }
 
 # def get_user_object_id(email):
-#     url = f"https://graph.microsoft.com/v1.0/users/{email}"
-#     response = requests.get(url, headers=get_headers())
-#     response.raise_for_status()
-#     print(response.json()["id"])
-#     return response.json()["id"]
-
-
-# def get_user_object_id(email):
-#     url = f"https://graph.microsoft.com/v1.0/users/{email}"
-#     response = requests.get(url, headers=get_graph_headers())
-#     response.raise_for_status()
-#     print("User Object ID:", response.json()["id"])
-#     return response.json()["id"]
-
-def get_user_object_id(email):
-    url = "https://graph.microsoft.com/v1.0/users"
-    params = {
-        "$filter": f"userPrincipalName eq '{email}'",
-        "$select": "id,displayName,userPrincipalName"
-    }
-
-    response = requests.get(
-        url,
-        headers=get_graph_headers(),
-        params=params
-    )
-
-    print("REQUEST URL:", response.url)
+    url = f"https://graph.microsoft.com/v1.0/users/{email}"
+    response = requests.get(url, headers=get_graph_headers())
     response.raise_for_status()
-
-    users = response.json().get("value", [])
-
-    if not users:
-        raise Exception(f"User not found in tenant: {email}")
-
-    user = users[0]
-    print(f"[OK] Found user: {user['displayName']} ({user['userPrincipalName']})")
-    return user["id"]
+    print("User Object ID:", response.json()["id"])
+    return response.json()["id"]
 
 
+def get_role_assignments():
+    get_role_response = requests.get(
+        f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
+        headers=get_headers()
+        )
+    get_role_response.raise_for_status()
+    return get_role_response.json().get("value", [])
 
 
-# def get_role_assignments():
-#     get_role_response = requests.get(
-#         f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
-#         headers=get_headers()
-#         )
-#     get_role_response.raise_for_status()
-#     return get_role_response.json().get("value", [])
+def assign_roles(roles):
+    existing_workspace_users = get_workspace_users()
+    existing_role_assignments = {
+        (ra["principal"]["id"], ra["role"])
+        for ra in get_role_assignments()
+    }
+    
+    for role in roles:
+        role_name = role["role_name"]
+        for user_id in role.get("users", []):
+            # Skip if user already exists in workspace
+            if user_id in existing_workspace_users:
+                print(f"[SKIP] {user_id} already exists in workspace")
+                continue
+            # Skip if role already assigned
+            if (user_id, role_name) in existing_role_assignments:
+                print(f"[SKIP] {user_id} already assigned {role_name}")
+                continue
+            body = {
+                "principal": {"id": user_id, "type": "User"},
+                "role": role_name
+            }
 
+            res = requests.post(
+                f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+                headers=get_headers(),
+                json=body
+            )
+            res.raise_for_status()
 
-# def assign_roles(roles):
-#     # headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-#     existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
- 
-#     for role in roles:
-#         role_name = role["role_name"]
-#         for user_id in role.get("users", []):
-#             if (user_id, role_name) in existing:
-#                 print(f"[SKIP] {user_id} already assigned {role_name}")
-#                 continue
- 
-#             body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
-#             res = requests.post(
-#                 f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
-#                 headers=get_headers(),
-#                 json=body
-#             )
-#             res.raise_for_status()
-#             print(f"[ADD] Assigned {role_name} to {user_id}")
+            print(f"[ADD] Assigned {role_name} to {user_id}")
+
  
 
 def main():
@@ -258,8 +235,8 @@ def main():
     
     
     # user_id = get_user_object_id("nazmulhasan.munna@datacrafters.io")
-    user_id = get_user_object_id("nasif.azam@datacrafters.io")
-    print(user_id)
+    # user_id = get_user_object_id("nasif.azam@datacrafters.io")
+    # print(user_id)
     
      
 if __name__ == "__main__":
