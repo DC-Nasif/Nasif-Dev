@@ -40,7 +40,7 @@ def get_access_token():
         return access_token
     except Exception as e:
         print(f"[ERROR] Error generating access token: {e}")
-        raise
+        raise e
 
 # Step 2: Get authorization headers
 def get_headers():
