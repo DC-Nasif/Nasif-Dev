@@ -130,5 +130,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        print(f"❌ Deployment failed: {ex}")
+        print(f"Deployment failed: {ex}")
         sys.exit(1)
