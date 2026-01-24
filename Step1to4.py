@@ -228,10 +228,14 @@ def main():
     print("\n--- Workspace Setup ---")    
     get_or_create_workspace()
     
-    # Step 4: Assign roles
-    print("\n--- Assigning Roles ---")
-    # assign_roles(roles)
+    # Step 4: List existing users
+    print("\n--- Existing Workspace Users ---")
     get_workspace_users()
+    
+    # Step 5: Assign roles
+    print("\n--- Assigning Roles ---")
+    assign_roles(roles)
+    
     
     
     # user_id = get_user_object_id("nazmulhasan.munna@datacrafters.io")
