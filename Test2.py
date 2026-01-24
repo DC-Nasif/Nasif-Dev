@@ -12,10 +12,10 @@ import base64
 load_dotenv()
 
 # Global variables
-tenant_id = os.getenv('TENANT_ID_ENV')
-client_id = os.getenv('CLIENT_ID_ENV')
-client_secret = os.getenv('CLIENT_SECRET_ENV')
-capacity_id = os.getenv('CAPACITY_ID_ENV')
+tenant_id = os.getenv('TENANT_ID')
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
+capacity_id = os.getenv('CAPACITY_ID')
 dev_workspace_id = os.getenv('DEV_WORKSPACE_ID')
 prod_workspace_id = os.getenv('PROD_WORKSPACE_ID')
 prod_workspace_name = os.getenv('PROD_WORKSPACE_NAME')
