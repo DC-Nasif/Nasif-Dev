@@ -119,14 +119,20 @@ def get_workspace_users():
     response.raise_for_status()
     users = response.json().get("value", [])
     existing_users = set()
+
     for u in users:
-        email_or_id = u.get("emailAddress", u.get("identifier"))
+        email = u.get("emailAddress")
+        user_id = u.get("identifier")
         role = u.get("groupUserAccessRight")
         principal_type = u.get("principalType")
-        existing_users.add(email_or_id)
-        print(f"** Email/ID: {email_or_id}, Role: {role}, PrincipalType: {principal_type}")
+        if user_id:
+            existing_users.add(user_id)
+
+        print(f"** UserID: {user_id}, Email: {email}, Role: {role}, PrincipalType: {principal_type}")
+    print(f"Users: {users}")
 
     return existing_users
+
 
 # def get_token(scope):
 #     try:
@@ -177,26 +183,53 @@ def get_role_assignments():
     return get_role_response.json().get("value", [])
 
 
+# def assign_roles(roles):
+#     existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
+ 
+#     for role in roles:
+#         role_name = role["role_name"]
+#         for user_id in role.get("users", []):
+#             if (user_id, role_name) in existing:
+#                 print(f"[SKIP] {user_id} already assigned {role_name}")
+#                 continue
+ 
+#             body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
+#             res = requests.post(
+#                 f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+#                 headers=get_headers(),
+#                 json=body
+#             )
+#             res.raise_for_status()
+#             print(f"[ADD] Assigned {role_name} to {user_id}")
+ 
+ 
 def assign_roles(roles):
     existing_workspace_users = get_workspace_users()
     existing_role_assignments = {
         (ra["principal"]["id"], ra["role"])
         for ra in get_role_assignments()
     }
-    
+
     for role in roles:
         role_name = role["role_name"]
+
         for user_id in role.get("users", []):
+
             # Skip if user already exists in workspace
             if user_id in existing_workspace_users:
-                print(f"[SKIP] {user_id} already exists in workspace")
+                print(f"[SKIP] User {user_id} already exists in workspace")
                 continue
-            # Skip if role already assigned
+
+            # Skip if same role already assigned (extra safety)
             if (user_id, role_name) in existing_role_assignments:
-                print(f"[SKIP] {user_id} already assigned {role_name}")
+                print(f"[SKIP] {user_id} already assigned role {role_name}")
                 continue
+
             body = {
-                "principal": {"id": user_id, "type": "User"},
+                "principal": {
+                    "id": user_id,
+                    "type": "User"
+                },
                 "role": role_name
             }
 
@@ -209,7 +242,6 @@ def assign_roles(roles):
 
             print(f"[ADD] Assigned {role_name} to {user_id}")
 
- 
 
 def main():
     print("\n=== Microsoft Fabric Deployment ===")
@@ -228,14 +260,13 @@ def main():
     print("\n--- Workspace Setup ---")    
     get_or_create_workspace()
     
-    # Step 4: List existing users
+    # Step 4: Get existing workspace users
     print("\n--- Existing Workspace Users ---")
     get_workspace_users()
     
-    # Step 5: Assign roles
+    # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
     assign_roles(roles)
-    
     
     
     # user_id = get_user_object_id("nazmulhasan.munna@datacrafters.io")
