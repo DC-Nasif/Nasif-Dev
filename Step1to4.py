@@ -117,7 +117,13 @@ def get_workspace_users():
         headers=get_headers()
     )
     response.raise_for_status()
-    print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
+    # print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
+    users = response.json().get("value", [])
+    for u in users:
+        email_or_id = u.get("emailAddress", u.get("identifier"))
+        role = u.get("groupUserAccessRight")
+        principal_type = u.get("principalType")
+        print(f"** Email/ID: {email_or_id}, Role: {role}, PrincipalType: {principal_type}")
     return response.json().get("value", [])
 
 def get_token(scope):
