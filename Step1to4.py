@@ -120,29 +120,37 @@ def get_workspace_users():
     return response.json().get("value", [])
 
 def get_token(scope):
-    credential = ClientSecretCredential(
-        tenant_id=TENANT_ID,
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET
-    )
-    token = credential.get_token(scope).token
-    return token
+    try:
+        credential = ClientSecretCredential(
+            tenant_id=TENANT_ID,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET
+        )
+        token = credential.get_token(scope).token
+        print(f"[OK] Token generated for scope: {scope}")
+        return token
+    except Exception as e:
+        print(f"[ERROR] Token generation failed: {e}")
+        raise
 
     
     # token = credential.get_token(scope)
     # return token.token
 
 def get_graph_headers():
+    token = get_token("https://graph.microsoft.com/.default")
     return {
-        "Authorization": f"Bearer {get_token('https://graph.microsoft.com/.default')}",
+        "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
 
 def get_fabric_headers():
+    token = get_token("https://api.fabric.microsoft.com/.default")
     return {
-        "Authorization": f"Bearer {get_token('https://api.fabric.microsoft.com/.default')}",
+        "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
+
 
 
 
@@ -158,8 +166,9 @@ def get_user_object_id(email):
     url = f"https://graph.microsoft.com/v1.0/users/{email}"
     response = requests.get(url, headers=get_graph_headers())
     response.raise_for_status()
-    print(response.json()["id"])
+    print("User Object ID:", response.json()["id"])
     return response.json()["id"]
+
 
 
 
