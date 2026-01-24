@@ -39,6 +39,7 @@ def get_access_token():
         global access_token
         access_token = token
         print("[OK] Access token generated successfully")
+        print("Access token:", access_token)
         return access_token
     except Exception as e:
         print(f"[ERROR] Error generating access token: {e}")
@@ -129,6 +130,7 @@ def get_another_token(scope):
             "https://api.fabric.microsoft.com/.default"
             ).token
         print("[OK] Secondary token generated successfully")
+        print("Secondary token: ", token)
         return token
     except Exception as e:
         print(f"[ERROR] Error generating Secondary token: {e}")
