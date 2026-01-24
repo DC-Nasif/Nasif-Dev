@@ -109,34 +109,44 @@ def get_or_create_workspace():
     return ws["id"]
 
 
-def get_role_assignments():
-    get_role_response = requests.get(
-        f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
+def get_workspace_users():
+    response = requests.get(
+        f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/users",
         headers=get_headers()
-        )
-    get_role_response.raise_for_status()
-    return get_role_response.json().get("value", [])
+    )
+    response.raise_for_status()
+    print(f"Users in workspace {WORKSPACE_NAME}: {response.json().get("value", [])}")
+    return response.json().get("value", [])
 
 
-def assign_roles(roles):
-    # headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
+# def get_role_assignments():
+#     get_role_response = requests.get(
+#         f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
+#         headers=get_headers()
+#         )
+#     get_role_response.raise_for_status()
+#     return get_role_response.json().get("value", [])
+
+
+# def assign_roles(roles):
+#     # headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+#     existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
  
-    for role in roles:
-        role_name = role["role_name"]
-        for user_id in role.get("users", []):
-            if (user_id, role_name) in existing:
-                print(f"[SKIP] {user_id} already assigned {role_name}")
-                continue
+#     for role in roles:
+#         role_name = role["role_name"]
+#         for user_id in role.get("users", []):
+#             if (user_id, role_name) in existing:
+#                 print(f"[SKIP] {user_id} already assigned {role_name}")
+#                 continue
  
-            body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
-            res = requests.post(
-                f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
-                headers=get_headers(),
-                json=body
-            )
-            res.raise_for_status()
-            print(f"[ADD] Assigned {role_name} to {user_id}")
+#             body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
+#             res = requests.post(
+#                 f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+#                 headers=get_headers(),
+#                 json=body
+#             )
+#             res.raise_for_status()
+#             print(f"[ADD] Assigned {role_name} to {user_id}")
  
 
 def main():
@@ -158,7 +168,8 @@ def main():
     
     # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
-    assign_roles(roles)
+    # assign_roles(roles)
+    get_workspace_users()
     
      
 if __name__ == "__main__":
