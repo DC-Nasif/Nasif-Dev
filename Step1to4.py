@@ -3,6 +3,7 @@ import sys
 import requests
 from azure.identity import ClientSecretCredential
 from dotenv import load_dotenv
+from urllib.parse import quote
 
 load_dotenv()
 
@@ -162,10 +163,20 @@ def get_fabric_headers():
 #     return response.json()["id"]
 
 
+# def get_user_object_id(email):
+#     url = f"https://graph.microsoft.com/v1.0/users/{email}"
+#     response = requests.get(url, headers=get_graph_headers())
+#     response.raise_for_status()
+#     print("User Object ID:", response.json()["id"])
+#     return response.json()["id"]
+
 def get_user_object_id(email):
-    url = f"https://graph.microsoft.com/v1.0/users/{email}"
+    encoded_email = quote(email)
+    url = f"https://graph.microsoft.com/v1.0/users/{encoded_email}"
+
     response = requests.get(url, headers=get_graph_headers())
     response.raise_for_status()
+
     print("User Object ID:", response.json()["id"])
     return response.json()["id"]
 
