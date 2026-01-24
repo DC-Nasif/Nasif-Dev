@@ -82,11 +82,11 @@ def get_or_create_workspace():
 
     for ws in get_response.json().get("value", []):
         if ws["displayName"].lower() == WORKSPACE_NAME.lower():
-            print(f"Workspace exists: {WORKSPACE_NAME}")
             global workspace_id
             workspace_id = ws['id']
+            print(f"Workspace exists: {WORKSPACE_NAME}")
+            print(f"Workspace ID: {workspace_id}")
             print("[OK] Workspace ID retrieved successfully")
-            print(f"Workspace ID GLBAL: {workspace_id}")
             return workspace_id
 
     # 2️ Create workspace if not found
@@ -122,8 +122,7 @@ def main():
     
     # Step 3: Create/verify workspace
     print("\n--- Workspace Setup ---")    
-    ws_id = get_or_create_workspace()
-    print(f"Workspace ID main: {ws_id}")
+    get_or_create_workspace()
     
      
 if __name__ == "__main__":
