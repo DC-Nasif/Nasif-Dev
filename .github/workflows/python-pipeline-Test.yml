@@ -27,4 +27,4 @@ jobs:
         pip install -r requirements.txt  # Ensure requirements.txt is in the root directory
 
     - name: Run Python script
-      run: python Test2.py  
+      run: python Opt.py  
