@@ -75,6 +75,8 @@ def create_workspace(workspace_name, workspace_id=None):
         if response.status_code in [200, 201]:
             workspace = response.json()
             print(f"[OK] Workspace created successfully")
+            print(f"Workspace: {workspace}")
+            print(f"Workspace Name: {workspace_name}")
             return workspace
         elif response.status_code == 409:
             print(f"[OK] Workspace already exists (409)")
