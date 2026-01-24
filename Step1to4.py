@@ -173,7 +173,8 @@ def get_fabric_headers():
 def get_user_object_id(email):
     url = "https://graph.microsoft.com/v1.0/users"
     params = {
-        "$filter": f"userPrincipalName eq '{email}'"
+        "$filter": f"userPrincipalName eq '{email}'",
+        "$select": "id,displayName,userPrincipalName"
     }
 
     response = requests.get(
@@ -181,13 +182,19 @@ def get_user_object_id(email):
         headers=get_graph_headers(),
         params=params
     )
+
+    print("REQUEST URL:", response.url)
     response.raise_for_status()
 
     users = response.json().get("value", [])
-    if not users:
-        raise Exception("User not found")
 
-    return users[0]["id"]
+    if not users:
+        raise Exception(f"User not found in tenant: {email}")
+
+    user = users[0]
+    print(f"[OK] Found user: {user['displayName']} ({user['userPrincipalName']})")
+    return user["id"]
+
 
 
 
