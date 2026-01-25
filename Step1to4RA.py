@@ -176,7 +176,8 @@ def get_user_object_id():
     if user_response.status_code != 200:
         print(f"Failed to find user: {user_response.status_code}")
         print(user_response.text)
-        exit()
+        # exit()
+        return None
     else:
         print("User Object ID:", user_response.json()["id"])
         user_response.raise_for_status()
