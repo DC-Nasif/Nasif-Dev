@@ -126,14 +126,14 @@ def get_workspace_users():
     existing_users_email = set()
 
     for u in users:
-        email = u.get("emailAddress")
+        u_email = u.get("emailAddress")
         user_id = u.get("identifier")
         role = u.get("groupUserAccessRight")
         principal_type = u.get("principalType")
-        if email:
-            existing_users_email.add(email)
+        if u_email:
+            existing_users_email.add(u_email)
 
-        print(f"** UserID: {user_id}, Email: {email}, Role: {role}, PrincipalType: {principal_type}")
+        print(f"** UserID: {user_id}, Email: {u_email}, Role: {role}, PrincipalType: {principal_type}")
 
     return existing_users_email
 
@@ -283,6 +283,15 @@ def main():
         print("--- Current Role Assignments ---")
         print(get_role_assignments())
         print(get_role_assignments())
+        
+
+    if user_email:
+        if user_email in existing_users_email:
+            print("exists")
+    else:  # <-- belongs to `if user_email`
+        print("does not exist")
+        assign_roles()
+
     
     
     
