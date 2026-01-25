@@ -27,4 +27,4 @@ jobs:
         pip install -r requirements.txt  # Ensure requirements.txt is in the root directory
 
     - name: Run Python script
-      run: python Step1to4.py  
+      run: python Step1to4RA.py  

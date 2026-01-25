@@ -1,3 +1,4 @@
+import email
 import os
 import sys
 import requests
@@ -22,10 +23,13 @@ roles = [
     {
         "role_name": "Admin",
         "users": [
-            "c8bbc001-4cfc-4041-897d-949857474f4f"
+            "c8bbc001-4cfc-4041-897d-949857474f4f",
+            "nasif.azam@datacrafters.io"
         ]
     }
 ]
+
+email = "nasif.azam@datacrafters.io"
 
 def get_access_token():
     try:
@@ -118,54 +122,51 @@ def get_workspace_users():
     )
     response.raise_for_status()
     users = response.json().get("value", [])
-    existing_users = set()
+    existing_users_email = set()
 
     for u in users:
         email = u.get("emailAddress")
         user_id = u.get("identifier")
         role = u.get("groupUserAccessRight")
         principal_type = u.get("principalType")
-        if user_id:
-            existing_users.add(user_id)
+        if email:
+            existing_users_email.add(email)
 
         print(f"** UserID: {user_id}, Email: {email}, Role: {role}, PrincipalType: {principal_type}")
 
-    return existing_users
+    return existing_users_email
 
 
-# def get_token(scope):
-#     try:
-#         credential = ClientSecretCredential(
-#             tenant_id=TENANT_ID,
-#             client_id=CLIENT_ID,
-#             client_secret=CLIENT_SECRET
-#         )
-#         token = credential.get_token(scope).token
-#         print(f"[OK] Token generated for scope: {scope}")
-#         return token
-#     except Exception as e:
-#         print(f"[ERROR] Token generation failed: {e}")
-#         raise
+def get_token(scope):
+    try:
+        credential = ClientSecretCredential(
+            tenant_id=TENANT_ID,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET
+        )
+        token = credential.get_token(scope).token
+        print(f"[OK] Token generated for scope: {scope}")
+        return token
+    except Exception as e:
+        print(f"[ERROR] Token generation failed: {e}")
+        raise
 
-    
-#     # token = credential.get_token(scope)
-#     # return token.token
 
-# def get_graph_headers():
-#     token = get_token("https://graph.microsoft.com/.default")
-#     return {
-#         "Authorization": f"Bearer {token}",
-#         "Content-Type": "application/json"
-#     }
+def get_graph_headers():
+    token = get_token("https://graph.microsoft.com/.default")
+    return {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
 
-# def get_fabric_headers():
-#     token = get_token("https://api.fabric.microsoft.com/.default")
-#     return {
-#         "Authorization": f"Bearer {token}",
-#         "Content-Type": "application/json"
-#     }
+def get_fabric_headers():
+    token = get_token("https://api.fabric.microsoft.com/.default")
+    return {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
 
-# def get_user_object_id(email):
+def get_user_object_id(email):
     url = f"https://graph.microsoft.com/v1.0/users/{email}"
     response = requests.get(url, headers=get_graph_headers())
     response.raise_for_status()
@@ -203,26 +204,26 @@ def get_role_assignments():
  
  
 def assign_roles(roles):
-    existing_workspace_users = get_workspace_users()
-    existing_role_assignments = {
-        (ra["principal"]["id"], ra["role"])
-        for ra in get_role_assignments()
-    }
+    # existing_workspace_users = get_workspace_users()
+    # existing_role_assignments = {
+    #     (ra["principal"]["id"], ra["role"])
+    #     for ra in get_role_assignments()
+    # }
 
     for role in roles:
         role_name = role["role_name"]
 
         for user_id in role.get("users", []):
 
-            # Skip if user already exists in workspace
-            if user_id in existing_workspace_users:
-                print(f"[SKIP] User {user_id} already exists in workspace")
-                continue
+            # # Skip if user already exists in workspace
+            # if user_id in existing_workspace_users:
+            #     print(f"[SKIP] User {user_id} already exists in workspace")
+            #     continue
 
             # Skip if same role already assigned (extra safety)
-            if (user_id, role_name) in existing_role_assignments:
-                print(f"[SKIP] {user_id} already assigned role {role_name}")
-                continue
+            # if (user_id, role_name) in existing_role_assignments:
+            #     print(f"[SKIP] {user_id} already assigned role {role_name}")
+            #     continue
 
             body = {
                 "principal": {
@@ -261,11 +262,16 @@ def main():
     
     # Step 4: Get existing workspace users
     print("\n--- Existing Workspace Users ---")
-    get_workspace_users()
+    existing_users_email = get_workspace_users()
     
     # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
-    assign_roles(roles)
+    if email:
+        if email in existing_users_email:
+            print("\n--- Skipping Assigning Roles ---")
+    else:
+        print("\n--- Assigning Roles ---")
+        assign_roles(roles)
     
     
     
