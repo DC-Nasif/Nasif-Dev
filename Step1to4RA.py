@@ -19,15 +19,15 @@ FABRIC_API = "https://api.fabric.microsoft.com/v1"
 access_token = None
 workspace_id = None
 
-roles = [
-    {
-        "role_name": "Admin",
-        "users": [
-            "c8bbc001-4cfc-4041-897d-949857474f4f",
-            "nasif.azam@datacrafters.io"
-        ]
-    }
-]
+# roles = [
+#     {
+#         "role_name": "Admin",
+#         "users": [
+#             "c8bbc001-4cfc-4041-897d-949857474f4f",
+#             "nasif.azam@datacrafters.io"
+#         ]
+#     }
+# ]
 
 # user_email = "nasif.azam@datacrafters.io"
 user_email = "nazmulhasan.munna@datacrafters.io"
@@ -162,12 +162,14 @@ def get_graph_headers():
         "Content-Type": "application/json"
     }
 
+
 def get_fabric_headers():
     token = get_token("https://api.fabric.microsoft.com/.default")
     return {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
+
 
 def get_user_object_id():
     url = f"https://graph.microsoft.com/v1.0/users/{user_email}"
@@ -220,7 +222,8 @@ def assign_roles():
     #     for ra in get_role_assignments()
     # }
 
-    user_id = get_user_object_id()
+    # user_id = get_user_object_id()
+    user_id = "65d56aef-261f-4a9e-b295-26cd16cea64a"
     role_name = user_role
 
     # for role in roles:
