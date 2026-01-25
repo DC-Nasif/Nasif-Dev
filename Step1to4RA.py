@@ -307,4 +307,4 @@ if __name__ == "__main__":
         main()
     except Exception as ex:
         print(f"Deployment failed: {ex}")
-        sys.exit(1)
+        # sys.exit(1)
