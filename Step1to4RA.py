@@ -268,6 +268,7 @@ def main():
     print("\n--- Existing Workspace Users ---")
     existing_users_email = get_workspace_users()
     print(f"Existing users email: {existing_users_email}")
+    print(f"User email: {user_email}")
     
     # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
