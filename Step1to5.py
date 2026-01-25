@@ -342,7 +342,8 @@ def deploy_items():
     # token = get_access_token()
     # headers = get_headers(token)
 
-    base_path = os.path.join(CLONE_DIR, "Development")
+    base_path = os.path.join(CLONE_DIR, "Nasif-Dev", "Development")
+
 
     for item_name in os.listdir(base_path):
         item_path = os.path.join(base_path, item_name)
