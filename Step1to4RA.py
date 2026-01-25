@@ -282,6 +282,7 @@ def main():
         assign_roles()
         print("--- Current Role Assignments ---")
         print(get_role_assignments())
+        print(get_role_assignments())
     
     
     
