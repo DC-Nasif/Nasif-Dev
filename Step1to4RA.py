@@ -204,7 +204,7 @@ def get_role_assignments():
 #             print(f"[ADD] Assigned {role_name} to {user_id}")
  
  
-def assign_roles(roles):
+def assign_roles():
     # existing_workspace_users = get_workspace_users()
     # existing_role_assignments = {
     #     (ra["principal"]["id"], ra["role"])
