@@ -191,9 +191,6 @@ def get_role_assignments():
         f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
         headers=get_headers()
         )
-    print("ABC")
-    print(get_role_response.json().get("value", []))
-    print("DEF")
     get_role_response.raise_for_status()
     return get_role_response.json().get("value", [])
 
@@ -247,7 +244,7 @@ def assign_roles():
     body = {
         "principal": {
             "id": user_id,
-            "type": "User"
+            "type": "App"
         },
         "role": role_name
     }
