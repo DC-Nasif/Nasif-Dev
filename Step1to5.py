@@ -7,6 +7,11 @@ import subprocess
 import json
 import base64
 from git import Repo
+from fabric_cicd import (
+    FabricWorkspace,
+    publish_all_items,
+    unpublish_all_orphan_items
+)
 
 load_dotenv()
 
@@ -20,10 +25,22 @@ FABRIC_API = "https://api.fabric.microsoft.com/v1"
 
 GITHUB_REPO = "https://github.com/DC-Nasif/Nasif-Dev.git"
 GITHUB_BRANCH = "Dev-Branch"
-CLONE_DIR = "./repo_clone"
+CLONE_DIR = "repo_clone"
+REPO_NAME = "Nasif-Dev"
+
+CLONE_DIR = "repo_clone"
+
+TARGET_ENVIRONMENT = "Nasif-Prod"
 
 access_token = None
 workspace_id = None
+
+ITEM_TYPES_IN_SCOPE = [
+    "Lakehouse",
+    "Dataflow",
+    "Report",
+    "SemanticModel"
+]
 
 # roles = [
 #     {
@@ -296,76 +313,50 @@ def assign_roles():
 #                 )
 
 
+
+# -----------------------------
+# CLONE REPO (if not exists)
+# -----------------------------
 def clone_repo():
-    if os.path.exists(CLONE_DIR):
-        print("[INFO] Repo already cloned")
-        return
-    Repo.clone_from(GITHUB_REPO, CLONE_DIR)
-    print("[OK] GitHub repo cloned")
+    if not os.path.exists(CLONE_DIR):
+        Repo.clone_from(GITHUB_REPO, CLONE_DIR)
+        print("[OK] Repo cloned")
+    else:
+        print("[INFO] Repo already exists")
 
-# ----------------------------
-# LOAD FABRIC ITEM DEFINITION
-# ----------------------------
-def load_item_definition(item_path):
-    with open(os.path.join(item_path, "item.json"), "r") as f:
-        item_json = json.load(f)
+# -----------------------------
+# FIND DEVELOPMENT FOLDER
+# -----------------------------
+def get_development_path():
+    dev_path = os.path.join(CLONE_DIR, REPO_NAME, "Development")
+    if not os.path.exists(dev_path):
+        raise FileNotFoundError(f"Development folder not found at {dev_path}")
+    return dev_path
 
-    definition_folder = os.path.join(item_path, "definition")
-    parts = []
+# -----------------------------
+# DEPLOY
+# -----------------------------
+def deploy():
+    repository_directory = get_development_path()
 
-    for root, _, files in os.walk(definition_folder):
-        for file in files:
-            file_path = os.path.join(root, file)
-            with open(file_path, "rb") as f:
-                content = base64.b64encode(f.read()).decode("utf-8")
+    print(f"[INFO] Deploying from: {repository_directory}")
+    print(f"[INFO] Target workspace: {workspace_id}")
 
-            relative_path = os.path.relpath(file_path, definition_folder)
+    target_workspace = FabricWorkspace(
+        workspace_id=workspace_id,
+        environment=TARGET_ENVIRONMENT,
+        repository_directory=repository_directory,
+        item_type_in_scope=ITEM_TYPES_IN_SCOPE
+    )
 
-            parts.append({
-                "path": relative_path.replace("\\", "/"),
-                "payload": content,
-                "payloadType": "InlineBase64"
-            })
+    # Publish items
+    publish_all_items(target_workspace)
+    print("[OK] Items published successfully")
 
-    return {
-        "displayName": item_json["displayName"],
-        "type": item_json["type"],
-        "definition": {
-            "parts": parts
-        }
-    }
+    # Remove orphan items
+    unpublish_all_orphan_items(target_workspace)
+    print("[OK] Orphan items unpublished")
 
-# ----------------------------
-# DEPLOY TO FABRIC
-# ----------------------------
-def deploy_items():
-    # token = get_access_token()
-    # headers = get_headers(token)
-
-    base_path = os.path.join(CLONE_DIR, "Nasif-Dev", "Development")
-
-
-    for item_name in os.listdir(base_path):
-        item_path = os.path.join(base_path, item_name)
-
-        if not os.path.isdir(item_path):
-            continue
-
-        print(f"[DEPLOY] {item_name}")
-
-        body = load_item_definition(item_path)
-
-        response = requests.post(
-            f"{FABRIC_API}/workspaces/{workspace_id}/items",
-            headers=get_headers(),
-            json=body
-        )
-
-        if response.status_code in (200, 201):
-            print(f"[OK] Deployed {item_name}")
-        else:
-            print(f"[ERROR] {item_name}")
-            print(response.status_code, response.text)
 
 
 def main():
@@ -405,7 +396,9 @@ def main():
 
     print("\n========== Deploying All Items ==========")
     print(f"[INFO] Deploying to workspace: {workspace_id}")
-    deploy_items()
+    # deploy_items()
+    clone_repo()
+    deploy()
     
 
     #  # Step 6: Clone GitHub repo

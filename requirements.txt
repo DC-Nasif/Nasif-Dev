@@ -1,4 +1,13 @@
-requests==2.31.0
-azure-identity==1.14.0
-python-dotenv==1.0.0
-gitpython==3.1.43
+# Core Fabric CI/CD library
+fabric-cicd
+
+# Azure authentication
+azure-identity>=1.14.0
+azure-core>=1.29.7
+
+# HTTP & utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Git operations (if cloning repo in script)
+GitPython>=3.1.40
