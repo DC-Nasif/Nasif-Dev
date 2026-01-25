@@ -268,6 +268,7 @@ def main():
     print("\n--- Assigning Roles ---")
     if email:
         if email in existing_users_email:
+            print(f"{email} user already exists in workspace.")
             print("\n--- Skipping Assigning Roles ---")
     else:
         print("\n--- Assigning Roles ---")
