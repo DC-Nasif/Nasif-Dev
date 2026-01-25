@@ -335,6 +335,10 @@ def main():
     
     # NEW: Print repo contents
     print_repo_tree(os.path.join(CLONE_DIR, "Development"))
+    
+    # Step 7: Deploy all items
+    print("\n========== Deploying All Items ==========")
+    deploy_all_items(access_token, workspace_id)
      
 if __name__ == "__main__":
     try:
