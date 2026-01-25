@@ -1,10 +1,10 @@
-import email
 import os
-import sys
 import requests
 from azure.identity import ClientSecretCredential
 from dotenv import load_dotenv
-from urllib.parse import quote
+import shutil
+import subprocess
+import json
 
 load_dotenv()
 
@@ -15,6 +15,10 @@ CAPACITY_ID = os.getenv("CAPACITY_ID")
 WORKSPACE_NAME = os.getenv("WORKSPACE_NAME")
 
 FABRIC_API = "https://api.fabric.microsoft.com/v1"
+
+GITHUB_REPO = "https://github.com/DC-Nasif/Nasif-Dev.git"
+GITHUB_BRANCH = "main"
+CLONE_DIR = "./repo_clone"
 
 access_token = None
 workspace_id = None
@@ -224,6 +228,73 @@ def assign_roles():
     print(f"[ADD] Assigned {role_name} to {user_id}")
 
 
+# ---------------- GITHUB ---------------- #
+def clone_repo():
+    if os.path.exists(CLONE_DIR):
+        shutil.rmtree(CLONE_DIR)
+
+    subprocess.run(
+        ["git", "clone", "-b", GITHUB_BRANCH, GITHUB_REPO, CLONE_DIR],
+        check=True
+    )
+    print("[OK] GitHub repo cloned")
+
+
+def print_repo_tree(base_path):
+    print("\nCloned Repository Structure:\n")
+
+    for root, dirs, files in os.walk(base_path):
+        level = root.replace(base_path, "").count(os.sep)
+        indent = " " * 4 * level
+        print(f"{indent} {os.path.basename(root)}/")
+
+        subindent = " " * 4 * (level + 1)
+        for f in files:
+            if f.endswith(".json"):
+                print(f"{subindent} {f}")
+
+
+# ---------------- DEPLOY ITEMS ---------------- #
+def deploy_item(token, workspace_id, item_type, item_path):
+    with open(item_path, "r", encoding="utf-8") as f:
+        payload = json.load(f)
+
+    url = f"{FABRIC_API}/workspaces/{workspace_id}/{item_type}"
+    res = requests.post(url, headers=get_headers(token), json=payload)
+
+    if res.status_code in [200, 201]:
+        print(f"[DEPLOYED] {item_type} -> {os.path.basename(item_path)}")
+    else:
+        print(f"[FAILED] {item_type}")
+        print(res.text)
+
+
+def deploy_all_items(token, workspace_id):
+    base = os.path.join(CLONE_DIR, "Development")
+
+    mappings = {
+        "lakehouses": "Lakehouse",
+        "warehouses": "Warehouse",
+        "semanticModels": "SemanticModel",
+        "reports": "Report"
+    }
+
+    for api_endpoint, folder in mappings.items():
+        folder_path = os.path.join(base, folder)
+        if not os.path.exists(folder_path):
+            continue
+
+        for file in os.listdir(folder_path):
+            if file.endswith(".json"):
+                deploy_item(
+                    token,
+                    workspace_id,
+                    api_endpoint,
+                    os.path.join(folder_path, file)
+                )
+
+
+
 def main():
     print("\n########## Microsoft Fabric Deployment ##########")
     
@@ -257,7 +328,13 @@ def main():
         print(f"Assigning Roles to {user_email}")
         assign_roles()
         print("See Current Roles Assignments Details: \n", get_role_assignments())        
-          
+     
+     # Step 6: Clone GitHub repo
+    print("\n========== Cloning GitHub Repo ==========")
+    clone_repo()     
+    
+    # NEW: Print repo contents
+    print_repo_tree(os.path.join(CLONE_DIR, "Development"))
      
 if __name__ == "__main__":
     try:
