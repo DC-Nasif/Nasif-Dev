@@ -29,8 +29,8 @@ workspace_id = None
 #     }
 # ]
 
-# user_email = "nasif.azam@datacrafters.io"
-user_email = "nazmulhasan.munna@datacrafters.io"
+# user_email = "nazmulhasan.munna@datacrafters.io"
+user_email = "nasif.azam@datacrafters.io"
 user_role = "Contributor"
 
 def get_access_token():
@@ -222,8 +222,8 @@ def assign_roles():
     #     for ra in get_role_assignments()
     # }
 
-    # user_id = get_user_object_id()
-    user_id = "65d56aef-261f-4a9e-b295-26cd16cea64a"
+    # user_id = "65d56aef-261f-4a9e-b295-26cd16cea64a"
+    user_id = get_user_object_id()
     role_name = user_role
 
     # for role in roles:
