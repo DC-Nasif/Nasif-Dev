@@ -191,7 +191,8 @@ def get_role_assignments():
         f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", 
         headers=get_headers()
         )
-    get_role_response.raise_for_status()
+    print(get_role_response.raise_for_status())
+    print("Role Assignments:", get_role_response.json().get("value", []))
     return get_role_response.json().get("value", [])
 
 
