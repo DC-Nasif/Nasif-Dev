@@ -339,8 +339,8 @@ def load_item_definition(item_path):
 # DEPLOY TO FABRIC
 # ----------------------------
 def deploy_items():
-    token = get_access_token()
-    headers = get_headers(token)
+    # token = get_access_token()
+    # headers = get_headers(token)
 
     base_path = os.path.join(CLONE_DIR, "Development")
 
@@ -356,7 +356,7 @@ def deploy_items():
 
         response = requests.post(
             f"{FABRIC_API}/workspaces/{workspace_id}/items",
-            headers=headers,
+            headers=get_headers(),
             json=body
         )
 
