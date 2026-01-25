@@ -272,12 +272,11 @@ def main():
     
     # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
-    if user_email:
-        if user_email in existing_users_email:
-            print(f"{user_email} user already exists in workspace.")
-            print("--- Skipping Assigning Roles ---")
+    if user_email in existing_users_email:
+        print(f"{user_email} user already exists in workspace.")
+        print("--- Skipping Assigning Roles ---")
             
-    if user_email not in existing_users_email:
+    else:
         print(f"\n{user_email} user does not exist in workspace.")
         print("--- Assigning Roles ---")
         assign_roles()
