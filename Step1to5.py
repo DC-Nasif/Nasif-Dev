@@ -340,9 +340,9 @@ def get_development_path():
 # DEPLOY
 # -----------------------------
 def deploy():
-    repository_directory = get_development_path()
+    # repository_directory = get_development_path()
 
-    print(f"[INFO] Deploying from: {repository_directory}")
+    # print(f"[INFO] Deploying from: {repository_directory}")
     print(f"[INFO] Target workspace: {workspace_id}")
 
     target_workspace = FabricWorkspace(
