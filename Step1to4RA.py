@@ -29,7 +29,8 @@ roles = [
     }
 ]
 
-user_email = "munna.hasan@datacrafters.io"
+# user_email = "nasif.azam@datacrafters.io"
+user_email = "nazmulhasan.munna@datacrafters.io"
 user_role = "Contributor"
 
 def get_access_token():
@@ -147,6 +148,7 @@ def get_token(scope):
         )
         token = credential.get_token(scope).token
         print(f"[OK] Token generated for scope: {scope}")
+        print("Secondary token:", token)
         return token
     except Exception as e:
         print(f"[ERROR] Token generation failed: {e}")
@@ -170,8 +172,8 @@ def get_fabric_headers():
 def get_user_object_id():
     url = f"https://graph.microsoft.com/v1.0/users/{user_email}"
     response = requests.get(url, headers=get_graph_headers())
-    response.raise_for_status()
     print("User Object ID:", response.json()["id"])
+    response.raise_for_status()
     return response.json()["id"]
 
 
@@ -277,8 +279,8 @@ def main():
         print("--- Skipping Assigning Roles ---")
             
     else:
-        print(f"\n{user_email} user does not exist in workspace.")
-        print("--- Assigning Roles ---")
+        print(f"{user_email} user does not exist in workspace.")
+        print(f"Assigning Roles to {user_email}")
         assign_roles()
         print("--- Current Role Assignments ---")
         print(get_role_assignments())
