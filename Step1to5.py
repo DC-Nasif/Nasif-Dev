@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import shutil
 import subprocess
 import json
+import base64
+from git import Repo
 
 load_dotenv()
 
@@ -228,71 +230,141 @@ def assign_roles():
     print(f"[ADD] Assigned {role_name} to {user_id}")
 
 
-# ---------------- GITHUB ---------------- #
+# # ---------------- GITHUB ---------------- #
+# def clone_repo():
+#     if os.path.exists(CLONE_DIR):
+#         shutil.rmtree(CLONE_DIR)
+
+#     subprocess.run(
+#         ["git", "clone", "-b", GITHUB_BRANCH, GITHUB_REPO, CLONE_DIR],
+#         check=True
+#     )
+#     print("[OK] GitHub repo cloned")
+
+
+# def print_repo_tree(base_path):
+#     print("\nCloned Repository Structure:\n")
+
+#     for root, dirs, files in os.walk(base_path):
+#         level = root.replace(base_path, "").count(os.sep)
+#         indent = " " * 4 * level
+#         print(f"{indent} {os.path.basename(root)}/")
+
+#         subindent = " " * 4 * (level + 1)
+#         for f in files:
+#             if f.endswith(".json"):
+#                 print(f"{subindent} {f}")
+
+
+# # ---------------- DEPLOY ITEMS ---------------- #
+# def deploy_item(token, workspace_id, item_type, item_path):
+#     with open(item_path, "r", encoding="utf-8") as f:
+#         payload = json.load(f)
+
+#     url = f"{FABRIC_API}/workspaces/{workspace_id}/{item_type}"
+#     res = requests.post(url, headers=get_headers(token), json=payload)
+
+#     if res.status_code in [200, 201]:
+#         print(f"[DEPLOYED] {item_type} -> {os.path.basename(item_path)}")
+#     else:
+#         print(f"[FAILED] {item_type}")
+#         print(res.text)
+
+
+# def deploy_all_items():
+#     base = os.path.join(CLONE_DIR, "Development")
+
+#     mappings = {
+#         "lakehouses": "Lakehouse",
+#         "warehouses": "Warehouse",
+#         "semanticModels": "SemanticModel",
+#         "reports": "Report"
+#     }
+
+#     for api_endpoint, folder in mappings.items():
+#         folder_path = os.path.join(base, folder)
+#         if not os.path.exists(folder_path):
+#             continue
+
+#         for file in os.listdir(folder_path):
+#             if file.endswith(".json"):
+#                 deploy_item(
+#                     access_token,
+#                     workspace_id,
+#                     api_endpoint,
+#                     os.path.join(folder_path, file)
+#                 )
+
+
 def clone_repo():
     if os.path.exists(CLONE_DIR):
-        shutil.rmtree(CLONE_DIR)
-
-    subprocess.run(
-        ["git", "clone", "-b", GITHUB_BRANCH, GITHUB_REPO, CLONE_DIR],
-        check=True
-    )
+        print("[INFO] Repo already cloned")
+        return
+    Repo.clone_from(GITHUB_REPO, CLONE_DIR)
     print("[OK] GitHub repo cloned")
 
+# ----------------------------
+# LOAD FABRIC ITEM DEFINITION
+# ----------------------------
+def load_item_definition(item_path):
+    with open(os.path.join(item_path, "item.json"), "r") as f:
+        item_json = json.load(f)
 
-def print_repo_tree(base_path):
-    print("\nCloned Repository Structure:\n")
+    definition_folder = os.path.join(item_path, "definition")
+    parts = []
 
-    for root, dirs, files in os.walk(base_path):
-        level = root.replace(base_path, "").count(os.sep)
-        indent = " " * 4 * level
-        print(f"{indent} {os.path.basename(root)}/")
+    for root, _, files in os.walk(definition_folder):
+        for file in files:
+            file_path = os.path.join(root, file)
+            with open(file_path, "rb") as f:
+                content = base64.b64encode(f.read()).decode("utf-8")
 
-        subindent = " " * 4 * (level + 1)
-        for f in files:
-            if f.endswith(".json"):
-                print(f"{subindent} {f}")
+            relative_path = os.path.relpath(file_path, definition_folder)
 
+            parts.append({
+                "path": relative_path.replace("\\", "/"),
+                "payload": content,
+                "payloadType": "InlineBase64"
+            })
 
-# ---------------- DEPLOY ITEMS ---------------- #
-def deploy_item(token, workspace_id, item_type, item_path):
-    with open(item_path, "r", encoding="utf-8") as f:
-        payload = json.load(f)
-
-    url = f"{FABRIC_API}/workspaces/{workspace_id}/{item_type}"
-    res = requests.post(url, headers=get_headers(token), json=payload)
-
-    if res.status_code in [200, 201]:
-        print(f"[DEPLOYED] {item_type} -> {os.path.basename(item_path)}")
-    else:
-        print(f"[FAILED] {item_type}")
-        print(res.text)
-
-
-def deploy_all_items():
-    base = os.path.join(CLONE_DIR, "Development")
-
-    mappings = {
-        "lakehouses": "Lakehouse",
-        "warehouses": "Warehouse",
-        "semanticModels": "SemanticModel",
-        "reports": "Report"
+    return {
+        "displayName": item_json["displayName"],
+        "type": item_json["type"],
+        "definition": {
+            "parts": parts
+        }
     }
 
-    for api_endpoint, folder in mappings.items():
-        folder_path = os.path.join(base, folder)
-        if not os.path.exists(folder_path):
+# ----------------------------
+# DEPLOY TO FABRIC
+# ----------------------------
+def deploy_items():
+    token = get_access_token()
+    headers = get_headers(token)
+
+    base_path = os.path.join(CLONE_DIR, "Development")
+
+    for item_name in os.listdir(base_path):
+        item_path = os.path.join(base_path, item_name)
+
+        if not os.path.isdir(item_path):
             continue
 
-        for file in os.listdir(folder_path):
-            if file.endswith(".json"):
-                deploy_item(
-                    access_token,
-                    workspace_id,
-                    api_endpoint,
-                    os.path.join(folder_path, file)
-                )
+        print(f"[DEPLOY] {item_name}")
 
+        body = load_item_definition(item_path)
+
+        response = requests.post(
+            f"{FABRIC_API}/workspaces/{workspace_id}/items",
+            headers=headers,
+            json=body
+        )
+
+        if response.status_code in (200, 201):
+            print(f"[OK] Deployed {item_name}")
+        else:
+            print(f"[ERROR] {item_name}")
+            print(response.status_code, response.text)
 
 
 def main():
@@ -329,16 +401,22 @@ def main():
         assign_roles()
         print("See Current Roles Assignments Details: \n", get_role_assignments())        
      
-     # Step 6: Clone GitHub repo
-    print("\n========== Cloning GitHub Repo ==========")
-    clone_repo()     
-    
-    # NEW: Print repo contents
-    # print_repo_tree(os.path.join(CLONE_DIR, "Development"))
-    
-    # Step 7: Deploy all items
+
     print("\n========== Deploying All Items ==========")
-    deploy_all_items()
+    print(f"[INFO] Deploying to workspace: {workspace_id}")
+    deploy_items()
+    
+
+    #  # Step 6: Clone GitHub repo
+    # print("\n========== Cloning GitHub Repo ==========")
+    # clone_repo()     
+    
+    # # NEW: Print repo contents
+    # # print_repo_tree(os.path.join(CLONE_DIR, "Development"))
+    
+    # # Step 7: Deploy all items
+    # print("\n========== Deploying All Items ==========")
+    # deploy_all_items()
      
 if __name__ == "__main__":
     try:
