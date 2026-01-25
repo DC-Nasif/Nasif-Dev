@@ -1,5 +1,6 @@
 # Core Fabric CI/CD library
-fabric-cicd
+# fabric-cicd
+git+https://github.com/microsoft/fabric-cicd.git
 
 # Azure authentication
 azure-identity>=1.14.0
