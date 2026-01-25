@@ -24,7 +24,7 @@ WORKSPACE_NAME = os.getenv("WORKSPACE_NAME")
 FABRIC_API = "https://api.fabric.microsoft.com/v1"
 
 GITHUB_REPO = "https://github.com/DC-Nasif/Nasif-Dev.git"
-GITHUB_BRANCH = "Dev-Branch"
+GITHUB_BRANCH = "main"
 CLONE_DIR = "repo_clone"
 REPO_NAME = "Nasif-Dev"
 
