@@ -29,7 +29,8 @@ roles = [
     }
 ]
 
-email = "nasif.azam@datacrafters.io"
+user_email = "nasif.azam@datacrafters.io"
+user_role = "Contributor"
 
 def get_access_token():
     try:
@@ -166,8 +167,8 @@ def get_fabric_headers():
         "Content-Type": "application/json"
     }
 
-def get_user_object_id(email):
-    url = f"https://graph.microsoft.com/v1.0/users/{email}"
+def get_user_object_id():
+    url = f"https://graph.microsoft.com/v1.0/users/{user_email}"
     response = requests.get(url, headers=get_graph_headers())
     response.raise_for_status()
     print("User Object ID:", response.json()["id"])
@@ -210,10 +211,13 @@ def assign_roles(roles):
     #     for ra in get_role_assignments()
     # }
 
-    for role in roles:
-        role_name = role["role_name"]
+    user_id = get_user_object_id()
+    role_name = user_role
 
-        for user_id in role.get("users", []):
+    # for role in roles:
+    #     role_name = role["role_name"]
+
+    #     for user_id in role.get("users", []):
 
             # # Skip if user already exists in workspace
             # if user_id in existing_workspace_users:
@@ -225,22 +229,22 @@ def assign_roles(roles):
             #     print(f"[SKIP] {user_id} already assigned role {role_name}")
             #     continue
 
-            body = {
-                "principal": {
-                    "id": user_id,
-                    "type": "User"
-                },
-                "role": role_name
-            }
+    body = {
+        "principal": {
+            "id": user_id,
+            "type": "User"
+        },
+        "role": role_name
+    }
 
-            res = requests.post(
-                f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
-                headers=get_headers(),
-                json=body
-            )
-            res.raise_for_status()
+    res = requests.post(
+        f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+        headers=get_headers(),
+        json=body
+    )
+    res.raise_for_status()
 
-            print(f"[ADD] Assigned {role_name} to {user_id}")
+    print(f"[ADD] Assigned {role_name} to {user_id}")
 
 
 def main():
@@ -266,13 +270,16 @@ def main():
     
     # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
-    if email:
-        if email in existing_users_email:
-            print(f"{email} user already exists in workspace.")
-            print("\n--- Skipping Assigning Roles ---")
+    if user_email:
+        if user_email in existing_users_email:
+            print(f"{user_email} user already exists in workspace.")
+            print("--- Skipping Assigning Roles ---")
     else:
-        print("\n--- Assigning Roles ---")
-        assign_roles(roles)
+        print(f"\n{user_email} user does not exist in workspace.")
+        print("--- Assigning Roles ---")
+        assign_roles()
+        print("--- Current Role Assignments ---")
+        print(get_role_assignments())
     
     
     
