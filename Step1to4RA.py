@@ -29,7 +29,7 @@ roles = [
     }
 ]
 
-user_email = "nasif.azam@datacrafters.iosada"
+user_email = "munna.hasan@datacrafters.io"
 user_role = "Contributor"
 
 def get_access_token():
@@ -267,6 +267,7 @@ def main():
     # Step 4: Get existing workspace users
     print("\n--- Existing Workspace Users ---")
     existing_users_email = get_workspace_users()
+    print(f"Existing users email: {existing_users_email}")
     
     # Step 4: Assign roles
     print("\n--- Assigning Roles ---")
