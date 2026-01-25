@@ -328,9 +328,12 @@ def clone_repo():
 # FIND DEVELOPMENT FOLDER
 # -----------------------------
 def get_development_path():
-    dev_path = os.path.join(CLONE_DIR, REPO_NAME, "Development")
+    # dev_path = os.path.join(CLONE_DIR, REPO_NAME, "Development")
+    dev_path = os.path.join(CLONE_DIR, REPO_NAME)
     if not os.path.exists(dev_path):
         raise FileNotFoundError(f"Development folder not found at {dev_path}")
+    else:
+        print(f"[INFO] Development folder found at: {dev_path}")
     return dev_path
 
 # -----------------------------
