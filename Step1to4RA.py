@@ -251,7 +251,7 @@ def assign_roles():
         },
         "role": role_name
     }
-
+    print("BODY",body)
     res = requests.post(
         f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
         headers=get_headers(),
