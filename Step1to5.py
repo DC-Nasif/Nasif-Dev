@@ -269,7 +269,7 @@ def deploy_item(token, workspace_id, item_type, item_path):
         print(res.text)
 
 
-def deploy_all_items(token, workspace_id):
+def deploy_all_items():
     base = os.path.join(CLONE_DIR, "Development")
 
     mappings = {
@@ -287,7 +287,7 @@ def deploy_all_items(token, workspace_id):
         for file in os.listdir(folder_path):
             if file.endswith(".json"):
                 deploy_item(
-                    token,
+                    access_token,
                     workspace_id,
                     api_endpoint,
                     os.path.join(folder_path, file)
@@ -338,7 +338,7 @@ def main():
     
     # Step 7: Deploy all items
     print("\n========== Deploying All Items ==========")
-    deploy_all_items(access_token, workspace_id)
+    deploy_all_items()
      
 if __name__ == "__main__":
     try:
