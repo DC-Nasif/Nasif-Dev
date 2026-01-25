@@ -334,7 +334,7 @@ def main():
     clone_repo()     
     
     # NEW: Print repo contents
-    print_repo_tree(os.path.join(CLONE_DIR, "Development"))
+    # print_repo_tree(os.path.join(CLONE_DIR, "Development"))
     
     # Step 7: Deploy all items
     print("\n========== Deploying All Items ==========")
