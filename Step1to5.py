@@ -83,7 +83,7 @@ def verify_service_principal_access():
 
 
 def get_or_create_workspace():
-    # 1️ Check existing workspaces
+    # 1️) Check existing workspaces
     get_ws_response = requests.get(
         f"{FABRIC_API}/workspaces", 
         headers=get_headers()
@@ -99,7 +99,7 @@ def get_or_create_workspace():
             print("[OK] Workspace ID retrieved successfully")
             return workspace_id
 
-    # 2️ Create workspace if not found
+    # 2️) Create workspace if not found
     payload = {
         "displayName": WORKSPACE_NAME,
         "capacityId": CAPACITY_ID
@@ -194,26 +194,6 @@ def get_role_assignments():
     get_role_response.raise_for_status()
     current_roles = get_role_response.json().get("value", [])
     return current_roles
-
-
-# def assign_roles(roles):
-#     existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
- 
-#     for role in roles:
-#         role_name = role["role_name"]
-#         for user_id in role.get("users", []):
-#             if (user_id, role_name) in existing:
-#                 print(f"[SKIP] {user_id} already assigned {role_name}")
-#                 continue
- 
-#             body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
-#             res = requests.post(
-#                 f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
-#                 headers=get_headers(),
-#                 json=body
-#             )
-#             res.raise_for_status()
-#             print(f"[ADD] Assigned {role_name} to {user_id}")
  
  
 def assign_roles():
@@ -226,21 +206,6 @@ def assign_roles():
     # user_id = "65d56aef-261f-4a9e-b295-26cd16cea64a"
     user_id = get_user_object_id()
     role_name = user_role
-
-    # for role in roles:
-    #     role_name = role["role_name"]
-
-    #     for user_id in role.get("users", []):
-
-            # # Skip if user already exists in workspace
-            # if user_id in existing_workspace_users:
-            #     print(f"[SKIP] User {user_id} already exists in workspace")
-            #     continue
-
-            # Skip if same role already assigned (extra safety)
-            # if (user_id, role_name) in existing_role_assignments:
-            #     print(f"[SKIP] {user_id} already assigned role {role_name}")
-            #     continue
 
     body = {
         "principal": {
@@ -255,9 +220,7 @@ def assign_roles():
         headers=get_headers(),
         json=body
     )
-    print("XYZ",res.raise_for_status())
     res.raise_for_status()
-
     print(f"[ADD] Assigned {role_name} to {user_id}")
 
 
@@ -294,22 +257,7 @@ def main():
         print(f"Assigning Roles to {user_email}")
         assign_roles()
         print("See Current Roles Assignments Details: \n", get_role_assignments())        
-        
-
-    # if user_email:
-    #     if user_email in existing_users_email:
-    #         print("exists")
-    # else:  # <-- belongs to `if user_email`
-    #     print("does not exist")
-    #     assign_roles()
-
-    
-    
-    
-    # user_id = get_user_object_id("nazmulhasan.munna@datacrafters.io")
-    # user_id = get_user_object_id("nasif.azam@datacrafters.io")
-    # print(user_id)
-    
+          
      
 if __name__ == "__main__":
     try:
