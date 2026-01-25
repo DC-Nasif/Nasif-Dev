@@ -171,10 +171,16 @@ def get_fabric_headers():
 
 def get_user_object_id():
     url = f"https://graph.microsoft.com/v1.0/users/{user_email}"
-    response = requests.get(url, headers=get_graph_headers())
-    print("User Object ID:", response.json()["id"])
-    response.raise_for_status()
-    return response.json()["id"]
+    user_response = requests.get(url, headers=get_graph_headers())
+    
+    if user_response.status_code != 200:
+        print(f"Failed to find user: {user_response.status_code}")
+        print(user_response.text)
+        exit()
+    else:
+        print("User Object ID:", user_response.json()["id"])
+        user_response.raise_for_status()
+        return user_response.json()["id"]
 
 
 def get_role_assignments():
