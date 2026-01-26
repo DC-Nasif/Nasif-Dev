@@ -234,7 +234,7 @@ def get_role_assignments():
 
 def assign_roles():
     headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-    existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments(access_token, workspace_id)}
+    existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments()}
  
     for role in roles:
         role_name = role["role_name"]
