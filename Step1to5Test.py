@@ -42,15 +42,21 @@ ITEM_TYPES_IN_SCOPE = [
     "SemanticModel"
 ]
 
-# roles = [
-#     {
-#         "role_name": "Admin",
-#         "users": [
-#             "c8bbc001-4cfc-4041-897d-949857474f4f",
-#             "nasif.azam@datacrafters.io"
-#         ]
-#     }
-# ]
+roles = [
+    {
+        "role_name": "Admin",
+        "users": [
+            "7d8c877e-d241-4abb-a5cc-e37e48ea3232" # Nazmul Hasan Munna
+        ]
+    },
+    {
+        "role_name": "Admin",
+        "users": [
+            "680bf000-7095-40ac-8724-d3d981c5fd40" # Nasif Azam
+        ]
+    }
+]
+
 
 user_email = "nazmulhasan.munna@datacrafters.io"
 # user_email = "nasif.azam@datacrafters.io"
@@ -219,7 +225,36 @@ def get_role_assignments():
     return current_roles
  
  
+# def get_role_assignments(token, workspace_id):
+#     headers = {"Authorization": f"Bearer {token}"}
+#     res = requests.get(f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments", headers=headers)
+#     res.raise_for_status()
+#     return res.json().get("value", [])
+ 
+
 def assign_roles():
+    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+    existing = {(ra["principal"]["id"], ra["role"]) for ra in get_role_assignments(access_token, workspace_id)}
+ 
+    for role in roles:
+        role_name = role["role_name"]
+        for user_id in role.get("users", []):
+            if (user_id, role_name) in existing:
+                print(f"[SKIP] {user_id} already assigned {role_name}")
+                continue
+ 
+            body = {"principal": {"id": user_id, "type": "User"}, "role": role_name}
+            res = requests.post(
+                f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+                headers=headers,
+                json=body
+            )
+            res.raise_for_status()
+            print(f"[ADD] Assigned {role_name} to {user_id}")
+ 
+ 
+ 
+# def assign_roles():
     # existing_workspace_users = get_workspace_users()
     # existing_role_assignments = {
     #     (ra["principal"]["id"], ra["role"])
