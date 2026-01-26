@@ -30,7 +30,7 @@ client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
 # Fabric Capacity ID
 capacity_id="4EB964EA-96E1-4AD3-A57D-E5EFD39F6788"
 
-workspace_name = "New-Prod"
+workspace_name = "Test-Prod"
 
 roles = [
     {
@@ -145,9 +145,10 @@ def assign_roles(token, workspace_id, roles):
 def main():
     tenant_id, client_id, client_secret, workspace_name, capacity_id, roles
     token = get_access_token(tenant_id, client_id, client_secret)
-    # workspace_id = get_workspace_id(token, workspace_name)
-    workspace_id = create_workspace(token, workspace_name)
-    assign_roles(token, workspace_id, roles)
+    workspace_id = get_workspace_id(token, workspace_name)
+    if workspace_id:
+        workspace_id = create_workspace(token, workspace_name)
+        assign_roles(token, workspace_id, roles)
     # Deploy
     
      
