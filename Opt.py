@@ -30,7 +30,7 @@ client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
 # Fabric Capacity ID
 capacity_id="59AB60EE-4E92-4A22-A8E0-0B31B00314CD"
 
-workspace_name = "Nasif-Prod"
+workspace_name = "Prod"
 
 roles = [
     {
