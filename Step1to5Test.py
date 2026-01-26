@@ -66,11 +66,23 @@ user_email = "nazmulhasan.munna@datacrafters.io"
 user_role = "Contributor"
 
 def get_credential():
-    return ClientSecretCredential(
-        tenant_id=TENANT_ID,
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET
-)
+    if CLIENT_SECRET:
+        credential = ClientSecretCredential(
+            tenant_id=TENANT_ID,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET
+        )
+        return credential
+    else:
+        return DefaultAzureCredential()
+
+
+# def get_credential():
+#     return ClientSecretCredential(
+#         tenant_id=TENANT_ID,
+#         client_id=CLIENT_ID,
+#         client_secret=CLIENT_SECRET
+# )
 
 
 def get_access_token():
