@@ -89,9 +89,21 @@ def get_workspace_id(token, workspace_name):
     return None
 
 
-def create_workspace(token, workspace_name, capacity_id):
+# def create_workspace(token, workspace_name, capacity_id):
+#     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+#     body = {"displayName": workspace_name, "capacityId": capacity_id}
+    
+#     print("Creating workspace...")
+ 
+#     res = requests.post(f"{FABRIC_API}/workspaces", headers=headers, json=body)
+#     res.raise_for_status()
+#     ws_id = res.json()["id"]
+#     print(f"Workspace created: {workspace_name} ({ws_id})")
+#     return ws_id
+
+def create_workspace(token, workspace_name):
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    body = {"displayName": workspace_name, "capacityId": capacity_id}
+    body = {"displayName": workspace_name}
     
     print("Creating workspace...")
  
@@ -134,7 +146,7 @@ def main():
     tenant_id, client_id, client_secret, workspace_name, capacity_id, roles
     token = get_access_token(tenant_id, client_id, client_secret)
     workspace_id = get_workspace_id(token, workspace_name)
-    create_workspace(token, workspace_name, capacity_id)
+    create_workspace(token, workspace_name)
     assign_roles(token, workspace_id, roles)
     # Deploy
     
