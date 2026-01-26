@@ -20,6 +20,8 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 CAPACITY_ID = os.getenv("CAPACITY_ID")
 WORKSPACE_NAME = os.getenv("WORKSPACE_NAME")
+TARGET_ENVIRONMENT = os.getenv("TARGET_ENVIRONMENT")
+
 
 FABRIC_API = "https://api.fabric.microsoft.com/v1"
 
@@ -30,7 +32,7 @@ REPO_NAME = "Nasif-Dev"
 
 CLONE_DIR = "repo_clone"
 
-TARGET_ENVIRONMENT = "Nasif-Prod"
+# TARGET_ENVIRONMENT = "Production"
 
 access_token = None
 workspace_id = None
@@ -382,7 +384,7 @@ def deploy():
 
     target_workspace = FabricWorkspace(
         workspace_id=workspace_id,
-        environment=TARGET_ENVIRONMENT,
+        # environment=TARGET_ENVIRONMENT,
         # repository_directory=repository_directory,
         repository_directory="https://github.com/DC-Nasif/Nasif-Dev/tree/Dev-Branch/Development",
         item_type_in_scope=ITEM_TYPES_IN_SCOPE
