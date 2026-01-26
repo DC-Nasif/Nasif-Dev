@@ -36,15 +36,15 @@ roles = [
     {
         "role_name": "Admin",
         "users": [
-            "user-object-id-1"
+            "7d8c877e-d241-4abb-a5cc-e37e48ea3232"
+        ]
+    },
+    {
+        "role_name": "Admin",
+        "users": [
+            "680bf000-7095-40ac-8724-d3d981c5fd40"
         ]
     }
-    # {
-    #     "role_name": "Member",
-    #     "users": [
-    #         "user-object-id-3"
-    #     ]
-    # }
 ]
 
  
