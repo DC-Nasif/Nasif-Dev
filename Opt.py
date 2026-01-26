@@ -92,6 +92,8 @@ def get_workspace_id(token, workspace_name):
 def create_workspace(token, workspace_name, capacity_id):
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     body = {"displayName": workspace_name, "capacityId": capacity_id}
+    
+    print("Creating workspace...")
  
     res = requests.post(f"{FABRIC_API}/workspaces", headers=headers, json=body)
     res.raise_for_status()
