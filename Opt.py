@@ -101,9 +101,9 @@ def get_workspace_id(token, workspace_name):
 #     print(f"Workspace created: {workspace_name} ({ws_id})")
 #     return ws_id
 
-def create_workspace(token, workspace_name):
+def create_workspace(token, workspace_name, capacity_id):
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    body = {"displayName": workspace_name}
+    body = {"displayName": workspace_name, "capacityId": capacity_id}
     
     print("Creating workspace...")
  
@@ -146,9 +146,18 @@ def main():
     tenant_id, client_id, client_secret, workspace_name, capacity_id, roles
     token = get_access_token(tenant_id, client_id, client_secret)
     workspace_id = get_workspace_id(token, workspace_name)
-    if workspace_id:
+    if workspace_id in None:
         workspace_id = create_workspace(token, workspace_name)
         assign_roles(token, workspace_id, roles)
+    
+    # workspace_id = get_workspace_id(token, workspace_name)
+    # if workspace_id is not None:
+    # # workspace_id exists → do your logic
+    #     print("Workspace ID found:", workspace_id)
+    # else:
+    # # workspace_id is None → handle this case
+    #     print("Workspace ID is None. Creating workspace or skipping.")
+
     # Deploy
     
      
