@@ -28,7 +28,7 @@ client_id="c8bbc001-4cfc-4041-897d-949857474f4f"
 client_secret="rVZ8Q~XmrhsEUgX6vC6iZmf.tVsesxp_6sNOkaSW"
 
 # Fabric Capacity ID
-capacity_id="59AB60EE-4E92-4A22-A8E0-0B31B00314CD"
+capacity_id="4EB964EA-96E1-4AD3-A57D-E5EFD39F6788"
 
 workspace_name = "Prod"
 
