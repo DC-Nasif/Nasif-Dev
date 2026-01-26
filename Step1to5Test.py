@@ -65,13 +65,22 @@ user_email = "nazmulhasan.munna@datacrafters.io"
 # user_email = "nasif.azam@datacrafters.io"
 user_role = "Contributor"
 
+def get_credential():
+    return ClientSecretCredential(
+        tenant_id=TENANT_ID,
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET
+)
+
+
 def get_access_token():
     try:
-        credential = ClientSecretCredential(
-            tenant_id=TENANT_ID,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET
-        )
+        credential = get_credential()
+        # credential = ClientSecretCredential(
+        #     tenant_id=TENANT_ID,
+        #     client_id=CLIENT_ID,
+        #     client_secret=CLIENT_SECRET
+        # )
         token = credential.get_token(
             "https://api.fabric.microsoft.com/.default"
             ).token
@@ -409,7 +418,8 @@ def deploy():
     target_workspace = FabricWorkspace(
         workspace_id=workspace_id,
         repository_directory=repo_dir,
-        item_type_in_scope=ITEM_TYPES_IN_SCOPE
+        item_type_in_scope=ITEM_TYPES_IN_SCOPE,
+        get_credential=get_credential()
     )
 
     publish_all_items(target_workspace)
