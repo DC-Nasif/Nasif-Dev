@@ -36,8 +36,7 @@ roles = [
     {
         "role_name": "Admin",
         "users": [
-            "user-object-id-1",
-            "user-object-id-2"
+            "user-object-id-1"
         ]
     }
     # {
@@ -88,6 +87,17 @@ def get_workspace_id(token, workspace_name):
  
     print(f"Workspace does not exist: {workspace_name}")
     return None
+
+
+def create_workspace(token, workspace_name, capacity_id):
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    body = {"displayName": workspace_name, "capacityId": capacity_id}
+ 
+    res = requests.post(f"{FABRIC_API}/workspaces", headers=headers, json=body)
+    res.raise_for_status()
+    ws_id = res.json()["id"]
+    print(f"Workspace created: {workspace_name} ({ws_id})")
+    return ws_id
  
  
 def get_role_assignments(token, workspace_id):
@@ -122,6 +132,7 @@ def main():
     tenant_id, client_id, client_secret
     token = get_access_token(tenant_id, client_id, client_secret)
     workspace_id = get_workspace_id(token, workspace_name)
+    create_workspace(token, workspace_name, capacity_id)
     assign_roles(token, workspace_id, roles)
     # Deploy
     
