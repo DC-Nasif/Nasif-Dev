@@ -52,5 +52,5 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Python script
-      run: python Opt.py
+      run: python Step1to5Test.py
 
