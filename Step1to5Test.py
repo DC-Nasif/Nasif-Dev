@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import shutil
 import subprocess
 import json
+import time
 import base64
 from azure.identity import DefaultAzureCredential
 from git import Repo
@@ -442,6 +443,116 @@ def deploy():
 
 
 
+def get_items_from_github(repo_url="https://github.com/Nasif-Azam/Nasif-Dev", 
+                          branch="Dev-Branch"):
+    """Clone and retrieve items"""
+    try:
+        if os.path.exists("temp_fabric_repo"):
+            shutil.rmtree("temp_fabric_repo", ignore_errors=True)
+        
+        print(f"[INFO] Cloning repository...")
+        subprocess.run(["git", "clone", "--branch", branch, repo_url, "temp_fabric_repo"], 
+                      check=True, capture_output=True)
+        
+        dev_path = os.path.join("temp_fabric_repo", "Development")
+        items = []
+        
+        if not os.path.exists(dev_path):
+            print("[ERROR] Development folder not found")
+            return []
+        
+        for item_name in os.listdir(dev_path):
+            item_path = os.path.join(dev_path, item_name)
+            if os.path.isdir(item_path):
+                itype = "Unknown"
+                if ".Report" in item_name: itype = "Report"
+                elif ".SemanticModel" in item_name: itype = "SemanticModel"
+                elif ".Lakehouse" in item_name: itype = "Lakehouse"
+                elif ".Notebook" in item_name: itype = "Notebook"
+                elif ".Dataflow" in item_name: itype = "Dataflow"
+                
+                if itype != "Unknown":
+                    items.append({
+                        "displayName": item_name.split('.')[0],
+                        "type": itype,
+                        "path": item_path
+                    })
+        
+        print(f"[OK] Found {len(items)} items to deploy")
+        return items
+    except Exception as e:
+        print(f"[ERROR] Git clone failed: {e}")
+        return []
+
+# Step 8: Copy item to workspace
+def copy_item_to_workspace(item, target_workspace_id):
+    """Deploy item to workspace with Base64 encoding"""
+    try:
+        item_type = item.get('type')
+        item_name = item.get('displayName')
+        item_path = item.get('path')
+        
+        def_map = {
+            'Report': 'definition.pbir',
+            'SemanticModel': 'definition.pbism',
+            'Lakehouse': 'lakehouse.metadata.json',
+            'Dataflow': 'mashup.pq',
+            'Notebook': 'notebook-content.py'
+        }
+        
+        logical_file = def_map.get(item_type)
+        if not logical_file:
+            print(f"[SKIP] Unknown definition for {item_type}")
+            return False
+        
+        file_path = os.path.join(item_path, logical_file)
+        
+        if item_type == 'Notebook' and not os.path.exists(file_path):
+            file_path = os.path.join(item_path, f"{item_name}.ipynb")
+            logical_file = f"{item_name}.ipynb"
+        
+        if not os.path.exists(file_path):
+            print(f"[WARNING] File not found: {file_path}")
+            return False
+        
+        # Read and Base64 encode
+        with open(file_path, 'rb') as f:
+            raw_content = f.read()
+            base64_content = base64.b64encode(raw_content).decode('utf-8')
+        
+        # Create payload
+        payload = {
+            "displayName": item_name,
+            "type": item_type,
+            "definition": {
+                "parts": [
+                    {
+                        "path": logical_file,
+                        "payload": base64_content,
+                        "payloadType": "InlineBase64"
+                    }
+                ]
+            }
+        }
+        
+        url = f"{FABRIC_API}/workspaces/{target_workspace_id}/items"
+        response = requests.post(url, headers=get_headers(), json=payload)
+        
+        if response.status_code in [200, 201, 202]:
+            print(f"[OK] Created {item_name}")
+            return True
+        else:
+            print(f"[ERROR] Failed to create {item_name}: {response.status_code}")
+            if response.status_code == 401:
+                print(f"[ACTION] Service Principal needs workspace permissions (assign role manually)")
+            print(f"[DEBUG] {response.text}")
+            return False
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return False
+
+
+
 def main():
     
     print("\n########## Microsoft Fabric Deployment ##########")
@@ -481,8 +592,27 @@ def main():
     print("\n========== Deploying All Items ==========")
     print(f"[INFO] Deploying to workspace: {workspace_id}")
     # deploy_items()
-    clone_repo()
-    deploy()
+    # clone_repo()
+    # deploy()
+    
+    # Step 5: Get items
+    print("\n--- Fetching Items ---")
+    items = get_items_from_github()
+    if not items:
+        print("[FATAL] No items to deploy")
+        return
+    
+    # Step 6: Deploy items
+    print("\n--- Deploying Items ---")
+    success_count = 0
+    for item in items:
+        if copy_item_to_workspace(item, workspace_id):
+            success_count += 1
+        time.sleep(2)
+    
+    # Step 7: Cleanup
+    if os.path.exists("temp_fabric_repo"):
+        shutil.rmtree("temp_fabric_repo", ignore_errors=True)
     
 
     #  # Step 6: Clone GitHub repo
