@@ -145,8 +145,8 @@ def assign_roles(token, workspace_id, roles):
 def main():
     tenant_id, client_id, client_secret, workspace_name, capacity_id, roles
     token = get_access_token(tenant_id, client_id, client_secret)
-    workspace_id = get_workspace_id(token, workspace_name)
-    create_workspace(token, workspace_name)
+    # workspace_id = get_workspace_id(token, workspace_name)
+    workspace_id = create_workspace(token, workspace_name)
     assign_roles(token, workspace_id, roles)
     # Deploy
     
