@@ -255,31 +255,31 @@ def assign_roles():
  
  
 # def assign_roles():
-    # existing_workspace_users = get_workspace_users()
-    # existing_role_assignments = {
-    #     (ra["principal"]["id"], ra["role"])
-    #     for ra in get_role_assignments()
-    # }
+#     # existing_workspace_users = get_workspace_users()
+#     # existing_role_assignments = {
+#     #     (ra["principal"]["id"], ra["role"])
+#     #     for ra in get_role_assignments()
+#     # }
 
-    # user_id = "65d56aef-261f-4a9e-b295-26cd16cea64a"
-    user_id = get_user_object_id()
-    role_name = user_role
+#     # user_id = "65d56aef-261f-4a9e-b295-26cd16cea64a"
+#     user_id = get_user_object_id()
+#     role_name = user_role
 
-    body = {
-        "principal": {
-            "id": user_id,
-            "type": "App"
-        },
-        "role": role_name
-    }
-    print("BODY",body)
-    res = requests.post(
-        f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
-        headers=get_headers(),
-        json=body
-    )
-    res.raise_for_status()
-    print(f"[ADD] Assigned {role_name} to {user_id}")
+#     body = {
+#         "principal": {
+#             "id": user_id,
+#             "type": "App"
+#         },
+#         "role": role_name
+#     }
+#     print("BODY",body)
+#     res = requests.post(
+#         f"{FABRIC_API}/workspaces/{workspace_id}/roleAssignments",
+#         headers=get_headers(),
+#         json=body
+#     )
+#     res.raise_for_status()
+#     print(f"[ADD] Assigned {role_name} to {user_id}")
 
 
 # # ---------------- GITHUB ---------------- #
@@ -399,6 +399,7 @@ def deploy():
 
 
 def main():
+    
     print("\n########## Microsoft Fabric Deployment ##########")
     
     # Step 1: Get token
