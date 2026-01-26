@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import json
 import base64
+from azure.identity import DefaultAzureCredential
 from git import Repo
 from fabric_cicd import (
     FabricWorkspace,
@@ -376,25 +377,44 @@ def get_development_path():
 # -----------------------------
 # DEPLOY
 # -----------------------------
-def deploy():
-    # repository_directory = get_development_path()
+# def deploy():
+#     # repository_directory = get_development_path()
 
-    # print(f"[INFO] Deploying from: {repository_directory}")
+#     # print(f"[INFO] Deploying from: {repository_directory}")
+#     print(f"[INFO] Target workspace: {workspace_id}")
+
+#     target_workspace = FabricWorkspace(
+#         workspace_id=workspace_id,
+#         # environment=TARGET_ENVIRONMENT,
+#         # repository_directory=repository_directory,
+#         repository_directory="https://github.com/DC-Nasif/Nasif-Dev/tree/Dev-Branch/Development",
+#         item_type_in_scope=ITEM_TYPES_IN_SCOPE
+#     )
+
+#     # Publish items
+#     publish_all_items(target_workspace)
+#     print("[OK] Items published successfully")
+
+#     # Remove orphan items
+#     unpublish_all_orphan_items(target_workspace)
+#     print("[OK] Orphan items unpublished")
+
+
+
+def deploy():
     print(f"[INFO] Target workspace: {workspace_id}")
+
+    repo_dir = r"C:\Users\NasifAzam\Documents\DC-GitHub\Nasif-Dev\Development"
 
     target_workspace = FabricWorkspace(
         workspace_id=workspace_id,
-        # environment=TARGET_ENVIRONMENT,
-        # repository_directory=repository_directory,
-        repository_directory="https://github.com/DC-Nasif/Nasif-Dev/tree/Dev-Branch/Development",
+        repository_directory=repo_dir,
         item_type_in_scope=ITEM_TYPES_IN_SCOPE
     )
 
-    # Publish items
     publish_all_items(target_workspace)
     print("[OK] Items published successfully")
 
-    # Remove orphan items
     unpublish_all_orphan_items(target_workspace)
     print("[OK] Orphan items unpublished")
 
